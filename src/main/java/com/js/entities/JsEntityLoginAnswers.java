@@ -8,6 +8,7 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityF
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionablePurge;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityFactory;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.operations.CcpAfterSaveFromMainEntity;
 import com.ccp.especifications.db.utils.entity.decorators.interfaces.CcpEntityConfigurator;
 import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityFieldPrimaryKey;
 import com.ccp.json.validations.fields.annotations.CcpJsonCopyFieldValidationsFrom;
@@ -17,6 +18,7 @@ import com.jn.entities.decorators.engine.JnVersionableEntity;
 import com.jn.entities.decorators.engine.JnVersionablePurgeEntity;
 import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDefault;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
+import com.js.business.login.JsBusinessPublishLoginAnswersSaved;
 
 /**
  * Answers of the sign-up questionnaire: how the user arrived ({@code channel}) and the goal on the platform ({@code goal}).
@@ -26,8 +28,11 @@ import com.jn.json.fields.validation.JnJsonCommonsFields;
  * <li>index {@code js_login_answers}</li>
  * <li>records cached for 3600 seconds</li>
  * <li>versionable: every write keeps the previous state in {@code jn_versionable}</li>
+ * <li>after each save, the answers are announced to whoever listens in {@code jn_write_event_subscribers}
+ * ({@link JsBusinessPublishLoginAnswersSaved}): vis turns the goal {@code recruiting} into a recruiter</li>
  * </ul>
  */
+@CcpAfterSaveFromMainEntity(execute = {JsBusinessPublishLoginAnswersSaved.class}, operationHandlers = {})
 @CcpEntityCache(3600)
 @CcpEntityVersionable(JnVersionableEntity.class)
 @CcpEntityVersionablePurge(JnVersionablePurgeEntity.class)
