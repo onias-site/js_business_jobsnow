@@ -11,11 +11,11 @@ import java.util.Arrays;
 import com.ccp.business.CcpBusiness;
 import com.ccp.constants.CcpOtherConstants;
 import com.jn.db.bulk.JnExecuteBulkOperation;
-import com.jn.db.bulk.handlers.JnBulkHandlerRegisterLogin;
-import com.jn.entities.JnEntityLoginPassword;
+import com.js.db.bulk.handlers.JsBulkHandlerRegisterLogin;
+import com.js.entities.JsEntityLoginPassword;
 import com.js.entities.JsEntityLoginPasswordAttempts;
-import com.jn.entities.JnEntityLoginTokenAttempts;
-import com.jn.entities.JnEntityLoginSessionValidation;
+import com.js.entities.JsEntityLoginTokenAttempts;
+import com.js.entities.JsEntityLoginSessionValidation;
 import com.js.services.JsServiceLogin;
 import com.jn.utils.JnDeleteKeysFromCache;
 import com.ccp.json.fields.validation.CcpJsonCommonsFields;
@@ -23,7 +23,7 @@ import com.ccp.json.fields.validation.CcpJsonCommonsFields;
 /**
  * Saves (or changes) the password of the user, in one bulk operation: saves the new password, moves a locked password
  * back from the twin, deletes the wrong password attempts and registers a new session as the current one of the e-mail,
- * which ends every other session of it (see {@code JnBusinessCheckCurrentSession}).
+ * which ends every other session of it (see {@code JsBusinessCheckCurrentSession}).
  */
 public class JsBusinessSavePassword implements CcpBusiness {
  
@@ -41,17 +41,17 @@ public class JsBusinessSavePassword implements CcpBusiness {
 	@SuppressWarnings("unchecked")
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 
-		CcpEntityBulkHandlerTransferRecordToTwinEntity executeLogout = new CcpEntityBulkHandlerTransferRecordToTwinEntity(JnEntityLoginSessionValidation.ENTITY, x -> Arrays.asList());
+		CcpEntityBulkHandlerTransferRecordToTwinEntity executeLogout = new CcpEntityBulkHandlerTransferRecordToTwinEntity(JsEntityLoginSessionValidation.ENTITY, x -> Arrays.asList());
 		
-		CcpEntity twinEntity = JnEntityLoginPassword.ENTITY.getTwinEntity();
+		CcpEntity twinEntity = JsEntityLoginPassword.ENTITY.getTwinEntity();
 		CcpEntityBulkHandlerTransferRecordToTwinEntity registerPasswordUnlock = new CcpEntityBulkHandlerTransferRecordToTwinEntity(twinEntity, x -> Arrays.asList());
 		CcpBulkHandlerDelete removePasswordAttempts = new CcpBulkHandlerDelete(JsEntityLoginPasswordAttempts.ENTITY);
 		// the token was right: its wrong attempts start over (until 2026-10-08 they were kept, and after a successful use
 		// one more wrong token was enough to lock it again)
-		CcpBulkHandlerDelete removeTokenAttempts = new CcpBulkHandlerDelete(JnEntityLoginTokenAttempts.ENTITY);
+		CcpBulkHandlerDelete removeTokenAttempts = new CcpBulkHandlerDelete(JsEntityLoginTokenAttempts.ENTITY);
 
-		CcpJsonRepresentation jsonWithTokenField = json.renameField(CcpJsonCommonsFields.sessionToken, JnEntityLoginSessionValidation.Fields.token);
-		CcpBulkHandlerSave updatePassword = new CcpBulkHandlerSave(JnEntityLoginPassword.ENTITY);
+		CcpJsonRepresentation jsonWithTokenField = json.renameField(CcpJsonCommonsFields.sessionToken, JsEntityLoginSessionValidation.Fields.token);
+		CcpBulkHandlerSave updatePassword = new CcpBulkHandlerSave(JsEntityLoginPassword.ENTITY);
 		JnExecuteBulkOperation.INSTANCE
 		.executeSelectUnionAllThenExecuteBulkOperation(
 				jsonWithTokenField
@@ -64,7 +64,7 @@ public class JsBusinessSavePassword implements CcpBusiness {
 				// registers the new session as the current one of the e-mail (the create becomes an update when there is
 				// one), which ends every older session; until 2026-10-11 JnBulkHandlerSolveLoginConflict came next and
 				// deleted that record, so a session opened here was not a current login and a second login got in without 409
-				, JnBulkHandlerRegisterLogin.INSTANCE
+				, JsBulkHandlerRegisterLogin.INSTANCE
 				);
 		
 		return CcpOtherConstants.EMPTY_JSON;

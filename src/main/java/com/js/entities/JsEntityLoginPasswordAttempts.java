@@ -30,6 +30,10 @@ import com.jn.json.fields.validation.JnJsonCommonsFields;
 @CcpEntityDisposable(value = JnDisposableEntity.class, timeOption = CcpEntityExpurgableOptions.daily)
 @CcpEntityFieldsTransformer(JnJsonTransformersFieldsEntityDefault.class)
 public class JsEntityLoginPasswordAttempts implements CcpEntityConfigurator {
+	/** The single instance: the class keeps no state. */
+	public final static JsEntityLoginPasswordAttempts INSTANCE = new JsEntityLoginPasswordAttempts();
+
+	private JsEntityLoginPasswordAttempts() {}
 
 	/** The entity {@code js_login_password_attempts}, with every decorator of this configuration. */
 	public static final CcpEntity ENTITY = new CcpEntityFactory(JsEntityLoginPasswordAttempts.class).entityInstance;

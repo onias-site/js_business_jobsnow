@@ -10,15 +10,15 @@ import com.ccp.especifications.db.bulk.handlers.CcpEntityBulkHandlerTransferReco
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.json.fields.validation.CcpJsonCommonsFields;
 import com.jn.db.bulk.JnExecuteBulkOperation;
-import com.jn.db.bulk.handlers.JnBulkHandlerRegisterLogin;
-import com.jn.entities.JnEntityLoginPassword;
+import com.js.db.bulk.handlers.JsBulkHandlerRegisterLogin;
+import com.js.entities.JsEntityLoginPassword;
 import com.js.entities.JsEntityLoginPasswordAttempts;
-import com.jn.entities.JnEntityLoginSessionValidation;
+import com.js.entities.JsEntityLoginSessionValidation;
 import com.jn.utils.JnDeleteKeysFromCache;
 
 /**
  * Logs the user in after the password was validated, in one bulk operation: moves a locked password back from the twin
- * (unlock), deletes the wrong password attempts and registers the session (see {@code JnBulkHandlerRegisterLogin}).
+ * (unlock), deletes the wrong password attempts and registers the session (see {@code JsBulkHandlerRegisterLogin}).
  */
 public class JsBusinessExecuteLogin implements CcpBusiness {
 		
@@ -36,9 +36,9 @@ public class JsBusinessExecuteLogin implements CcpBusiness {
 	 */
 	@SuppressWarnings("unchecked")
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-		CcpJsonRepresentation jsonWithTokenField = json.renameField(CcpJsonCommonsFields.sessionToken, JnEntityLoginSessionValidation.Fields.token);
+		CcpJsonRepresentation jsonWithTokenField = json.renameField(CcpJsonCommonsFields.sessionToken, JsEntityLoginSessionValidation.Fields.token);
 		
-		CcpEntity twinEntity = JnEntityLoginPassword.ENTITY.getTwinEntity();
+		CcpEntity twinEntity = JsEntityLoginPassword.ENTITY.getTwinEntity();
 		CcpEntityBulkHandlerTransferRecordToTwinEntity executeUnlock = new CcpEntityBulkHandlerTransferRecordToTwinEntity(twinEntity, x -> Arrays.asList());
 		CcpEntity entityAttempts = JsEntityLoginPasswordAttempts.ENTITY;
 		
@@ -50,7 +50,7 @@ public class JsBusinessExecuteLogin implements CcpBusiness {
 				,JnDeleteKeysFromCache.INSTANCE
 				, executeUnlock
 				, removeAttempts
-				, JnBulkHandlerRegisterLogin.INSTANCE
+				, JsBulkHandlerRegisterLogin.INSTANCE
 				);
 		
 		return CcpOtherConstants.EMPTY_JSON;

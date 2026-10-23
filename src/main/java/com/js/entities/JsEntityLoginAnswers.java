@@ -39,6 +39,10 @@ import com.js.business.login.JsBusinessPublishLoginAnswersSaved;
 @CcpEntityFieldsValidator(JsEntityLoginAnswers.Fields.class)
 @CcpEntityFieldsTransformer(JnJsonTransformersFieldsEntityDefault.class)
 public class JsEntityLoginAnswers implements CcpEntityConfigurator {
+	/** The single instance: the class keeps no state. */
+	public final static JsEntityLoginAnswers INSTANCE = new JsEntityLoginAnswers();
+
+	private JsEntityLoginAnswers() {}
 
 	/** The entity {@code js_login_answers}, with every decorator of this configuration. */
 	public static final CcpEntity ENTITY = new CcpEntityFactory(JsEntityLoginAnswers.class).entityInstance;

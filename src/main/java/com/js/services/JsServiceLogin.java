@@ -15,37 +15,36 @@ import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityMetaData;
-import com.jn.business.login.JnBusinessCheckCurrentSession;
-import com.jn.business.login.JnBusinessEvaluateAttempts;
+import com.js.business.login.JsBusinessCheckCurrentSession;
+import com.js.business.login.JsBusinessEvaluateAttempts;
 import com.js.business.login.JsBusinessExecuteLogin;
-import com.jn.business.login.JnBusinessExecuteLogout;
+import com.js.business.login.JsBusinessExecuteLogout;
 import com.js.business.login.JsBusinessSavePassword;
 import com.jn.business.messages.JnMessages;
 import com.jn.entities.JnEntityDisposableRecord;
 import com.jn.entities.JnEntityEmailReportedAsSpam;
 import com.js.entities.JsEntityLoginAnswers;
-import com.jn.entities.JnEntityLoginEmail;
-import com.jn.entities.JnEntityLoginPassword;
+import com.js.entities.JsEntityLoginEmail;
+import com.js.entities.JsEntityLoginPassword;
 import com.js.entities.JsEntityLoginPasswordAttempts;
-import com.jn.entities.JnEntityLoginSessionConflict;
-import com.jn.entities.JnEntityLoginSessionValidation;
-import com.js.entities.JsEntityLoginStats;
-import com.jn.entities.JnEntityLoginToken;
-import com.jn.entities.JnEntityLoginTokenAttempts;
-import com.jn.entities.JnEntityLoginTokenRequestResend;
-import com.jn.entities.JnEntityLoginTokenRequestUnlock;
+import com.js.entities.JsEntityLoginSessionConflict;
+import com.js.entities.JsEntityLoginSessionValidation;
+import com.js.entities.JsEntityLoginToken;
+import com.js.entities.JsEntityLoginTokenAttempts;
+import com.js.entities.JsEntityLoginTokenRequestResend;
+import com.js.entities.JsEntityLoginTokenRequestUnlock;
 import com.jn.entities.JnEntityMessageDidNotSent;
 import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDefault;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.jn.mensageria.JnFunctionMensageriaSender;
-import com.jn.status.login.JnProcessStatusCreateLoginEmail;
-import com.jn.status.login.JnProcessStatusCreateLoginToken;
-import com.jn.status.login.JnProcessStatusExecuteLogin;
-import com.jn.status.login.JnProcessStatusExecuteLogout;
-import com.jn.status.login.JnProcessStatusExistsLoginEmail;
-import com.jn.status.login.JnProcessStatusSaveAnswers;
-import com.jn.status.login.JnProcessStatusUnlockLoginToken;
-import com.jn.status.login.JnProcessStatusUpdatePassword;
+import com.js.status.login.JsProcessStatusCreateLoginEmail;
+import com.js.status.login.JsProcessStatusCreateLoginToken;
+import com.js.status.login.JsProcessStatusExecuteLogin;
+import com.js.status.login.JsProcessStatusExecuteLogout;
+import com.js.status.login.JsProcessStatusExistsLoginEmail;
+import com.js.status.login.JsProcessStatusSaveAnswers;
+import com.js.status.login.JsProcessStatusUnlockLoginToken;
+import com.js.status.login.JsProcessStatusUpdatePassword;
 import com.jn.utils.JnDeleteKeysFromCache;
 
 import com.ccp.json.fields.validation.CcpJsonCommonsFields;
@@ -98,16 +97,15 @@ public enum JsServiceLogin implements JnService {
 			CcpJsonRepresentation findById =  new CcpGetEntityId(parametersToSearchInAllEntities)
 			.toBeginProcedureAnd()
 				.loadThisIdFromEntity(JnEntityDisposableRecord.ENTITY).and()
-				.loadThisIdFromEntity(JnEntityLoginPassword.ENTITY).and()
-				.loadThisIdFromEntity(JsEntityLoginStats.ENTITY).and()
+				.loadThisIdFromEntity(JsEntityLoginPassword.ENTITY).and()
 				.loadThisIdFromEntity(JsEntityLoginPasswordAttempts.ENTITY).and()
-				.ifThisIdIsPresentInEntity(JnEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusExecuteLogin.lockedToken).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).returnStatus(JnProcessStatusExecuteLogin.missingSavingEmail).and()
-				.ifThisIdIsPresentInEntity(JnEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusExecuteLogin.lockedPassword).and()
-				.ifThisIdIsPresentInEntity(JnEntityLoginSessionConflict.ENTITY).returnStatus(JnProcessStatusExecuteLogin.loginConflict).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginPassword.ENTITY).returnStatus(JnProcessStatusExecuteLogin.missingSavePassword).and()
-				.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JnProcessStatusExecuteLogin.missingSaveAnswers).and()
-				.ifThisIdIsPresentInEntity(JnEntityLoginPassword.ENTITY).executeAction(functionToEvaluatePasswordAttempts).andFinallyReturningTheseFields(
+				.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusExecuteLogin.lockedToken).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginEmail.ENTITY).returnStatus(JsProcessStatusExecuteLogin.missingSavingEmail).and()
+				.ifThisIdIsPresentInEntity(JsEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusExecuteLogin.lockedPassword).and()
+				.ifThisIdIsPresentInEntity(JsEntityLoginSessionConflict.ENTITY).returnStatus(JsProcessStatusExecuteLogin.loginConflict).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginPassword.ENTITY).returnStatus(JsProcessStatusExecuteLogin.missingSavePassword).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JsProcessStatusExecuteLogin.missingSaveAnswers).and()
+				.ifThisIdIsPresentInEntity(JsEntityLoginPassword.ENTITY).executeAction(functionToEvaluatePasswordAttempts).andFinallyReturningTheseFields(
 						JnJsonCommonsFields.userAgent,
 						JnJsonCommonsFields.attempts,
 						JnJsonCommonsFields.timestamp,
@@ -133,15 +131,15 @@ public enum JsServiceLogin implements JnService {
 		 * @return the request
 		 */
 		public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-			CcpBusiness action = CcpEntityOperationType.save.getOperationCallback(JnEntityLoginEmail.ENTITY);
+			CcpBusiness action = CcpEntityOperationType.save.getOperationCallback(JsEntityLoginEmail.ENTITY);
 			CcpJsonRepresentation result = new CcpGetEntityId(json)
 			.toBeginProcedureAnd()
-				.ifThisIdIsPresentInEntity(JnEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusCreateLoginEmail.lockedToken).and()
-				.ifThisIdIsPresentInEntity(JnEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusCreateLoginEmail.lockedPassword).and()
-				.ifThisIdIsPresentInEntity(JnEntityLoginSessionConflict.ENTITY).returnStatus(JnProcessStatusCreateLoginEmail.loginConflict).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).executeAction(action).and()
-				.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JnProcessStatusCreateLoginEmail.missingSaveAnswers).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginPassword.ENTITY).returnStatus(JnProcessStatusCreateLoginEmail.missingSavePassword).andFinallyReturningTheseFields(JsonFieldNames.inexistentField)
+				.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusCreateLoginEmail.lockedToken).and()
+				.ifThisIdIsPresentInEntity(JsEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusCreateLoginEmail.lockedPassword).and()
+				.ifThisIdIsPresentInEntity(JsEntityLoginSessionConflict.ENTITY).returnStatus(JsProcessStatusCreateLoginEmail.loginConflict).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginEmail.ENTITY).executeAction(action).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JsProcessStatusCreateLoginEmail.missingSaveAnswers).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginPassword.ENTITY).returnStatus(JsProcessStatusCreateLoginEmail.missingSavePassword).andFinallyReturningTheseFields(JsonFieldNames.inexistentField)
 			.endThisProcedureRetrievingTheResultingData(this, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING, JnDeleteKeysFromCache.INSTANCE);
 
 			return result;
@@ -162,12 +160,12 @@ public enum JsServiceLogin implements JnService {
 
 				new CcpGetEntityId(json)
 				.toBeginProcedureAnd()
-					.ifThisIdIsPresentInEntity(JnEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusExistsLoginEmail.lockedToken).and()
-					.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).returnStatus(JnProcessStatusExistsLoginEmail.missingEmail).and()
-					.ifThisIdIsPresentInEntity(JnEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusExistsLoginEmail.lockedPassword).and()
-					.ifThisIdIsPresentInEntity(JnEntityLoginSessionConflict.ENTITY).returnStatus(JnProcessStatusExistsLoginEmail.loginConflict).and()
-					.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JnProcessStatusExistsLoginEmail.missingAnswers).and()
-					.ifThisIdIsNotPresentInEntity(JnEntityLoginPassword.ENTITY).returnStatus(JnProcessStatusExistsLoginEmail.missingPassword)
+					.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusExistsLoginEmail.lockedToken).and()
+					.ifThisIdIsNotPresentInEntity(JsEntityLoginEmail.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.missingEmail).and()
+					.ifThisIdIsPresentInEntity(JsEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusExistsLoginEmail.lockedPassword).and()
+					.ifThisIdIsPresentInEntity(JsEntityLoginSessionConflict.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.loginConflict).and()
+					.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.missingAnswers).and()
+					.ifThisIdIsNotPresentInEntity(JsEntityLoginPassword.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.missingPassword)
 					.andFinallyReturningTheseFields(JsonFieldNames.inexistentField)
 				.endThisProcedure(this, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING, JnDeleteKeysFromCache.INSTANCE)
 				;
@@ -185,13 +183,13 @@ public enum JsServiceLogin implements JnService {
 		 * @return the request
 		 */
 		public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-			CcpBusiness action = new JnFunctionMensageriaSender(JnBusinessExecuteLogout.INSTANCE);
+			CcpBusiness action = new JnFunctionMensageriaSender(JsBusinessExecuteLogout.INSTANCE);
 			new CcpGetEntityId(json)
 			.toBeginProcedureAnd()
-			.loadThisIdFromEntity(JnEntityLoginSessionConflict.ENTITY).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginSessionValidation.ENTITY).returnStatus(JnProcessStatusExecuteLogout.missingLogin).and()
+			.loadThisIdFromEntity(JsEntityLoginSessionConflict.ENTITY).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginSessionValidation.ENTITY).returnStatus(JsProcessStatusExecuteLogout.missingLogin).and()
 				// the logout of a replaced session would delete the record of the current one
-				.executeAction(JnBusinessCheckCurrentSession.TO_EXECUTE_LOGOUT).and()
+				.executeAction(JsBusinessCheckCurrentSession.TO_EXECUTE_LOGOUT).and()
 				.executeAction(action)
 				.andFinallyReturningTheseFields(JsonFieldNames.inexistentField)
 			.endThisProcedure(this, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING, JnDeleteKeysFromCache.INSTANCE)
@@ -216,12 +214,12 @@ public enum JsServiceLogin implements JnService {
 
 			new CcpGetEntityId(json)
 			.toBeginProcedureAnd()
-				.ifThisIdIsPresentInEntity(JnEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusSaveAnswers.lockedToken).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).returnStatus(JnProcessStatusSaveAnswers.missingToken).and()
-				.ifThisIdIsPresentInEntity(JnEntityLoginSessionConflict.ENTITY).returnStatus(JnProcessStatusSaveAnswers.loginConflict).and()
-				.ifThisIdIsPresentInEntity(JnEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusSaveAnswers.lockedPassword).and()
+				.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusSaveAnswers.lockedToken).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginEmail.ENTITY).returnStatus(JsProcessStatusSaveAnswers.missingToken).and()
+				.ifThisIdIsPresentInEntity(JsEntityLoginSessionConflict.ENTITY).returnStatus(JsProcessStatusSaveAnswers.loginConflict).and()
+				.ifThisIdIsPresentInEntity(JsEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusSaveAnswers.lockedPassword).and()
 				.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).executeAction(action)
-	 			.and().ifThisIdIsNotPresentInEntity(JnEntityLoginPassword.ENTITY).returnStatus(JnProcessStatusSaveAnswers.missingPassword)
+	 			.and().ifThisIdIsNotPresentInEntity(JsEntityLoginPassword.ENTITY).returnStatus(JsProcessStatusSaveAnswers.missingPassword)
 
 				.andFinallyReturningTheseFields(JsonFieldNames.inexistentField)
 			.endThisProcedure(this, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING, JnDeleteKeysFromCache.INSTANCE)
@@ -246,9 +244,9 @@ public enum JsServiceLogin implements JnService {
 
 			CcpJsonRepresentation[] parametersToSearchInAllEntities = this.createParametersToSearchInAllEntities(jsonWithSubjectType);
 
-			CcpBusiness saveTheToken = CcpEntityOperationType.save.getOperationCallback(JnEntityLoginToken.ENTITY);
+			CcpBusiness saveTheToken = CcpEntityOperationType.save.getOperationCallback(JsEntityLoginToken.ENTITY);
 
-			CcpBusiness saveTheLoginEmail = CcpEntityOperationType.save.getOperationCallback(JnEntityLoginEmail.ENTITY);
+			CcpBusiness saveTheLoginEmail = CcpEntityOperationType.save.getOperationCallback(JsEntityLoginEmail.ENTITY);
 
 			// the language comes only in the URL of this request; the login e-mail keeps it for the token reset by the support
 			CcpBusiness sendUserToken = new CcpBusiness() {
@@ -262,11 +260,11 @@ public enum JsServiceLogin implements JnService {
 
 			CcpJsonRepresentation result = new CcpGetEntityId(parametersToSearchInAllEntities)
 			.toBeginProcedureAnd()
-				.ifThisIdIsPresentInEntity(JnEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusCreateLoginToken.statusLockedToken).and()
-				.ifThisIdIsPresentInEntity(JnEntityMessageDidNotSent.ENTITY).returnStatus(JnProcessStatusCreateLoginToken.statusCanNotSendThisMessage).and()
-				.ifThisIdIsPresentInEntity(JnEntityDisposableRecord.ENTITY).returnStatus(JnProcessStatusCreateLoginToken.statusAlreadySentToken).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).returnStatus(JnProcessStatusCreateLoginToken.statusMissingEmail).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginToken.ENTITY).executeAction(sendUserToken)
+				.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusCreateLoginToken.statusLockedToken).and()
+				.ifThisIdIsPresentInEntity(JnEntityMessageDidNotSent.ENTITY).returnStatus(JsProcessStatusCreateLoginToken.statusCanNotSendThisMessage).and()
+				.ifThisIdIsPresentInEntity(JnEntityDisposableRecord.ENTITY).returnStatus(JsProcessStatusCreateLoginToken.statusAlreadySentToken).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginEmail.ENTITY).returnStatus(JsProcessStatusCreateLoginToken.statusMissingEmail).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginToken.ENTITY).executeAction(sendUserToken)
 				.andFinallyReturningTheseFields(
 						JnJsonCommonsFields.userAgent,
 						JnJsonCommonsFields.attempts,
@@ -301,13 +299,12 @@ public enum JsServiceLogin implements JnService {
 
 			CcpJsonRepresentation result =  new CcpGetEntityId(parametersToSearchInAllEntities)
 			.toBeginProcedureAnd()
-			.loadThisIdFromEntity(JsEntityLoginStats.ENTITY).and()
 			.loadThisIdFromEntity(JnEntityDisposableRecord.ENTITY).and()
-				.loadThisIdFromEntity(JnEntityLoginTokenAttempts.ENTITY).and()
-				.ifThisIdIsPresentInEntity(JnEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusUpdatePassword.lockedToken).and()
-				.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JnProcessStatusUpdatePassword.missingSaveAnswers).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).returnStatus(JnProcessStatusUpdatePassword.missingEmail).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginToken.ENTITY).returnStatus(JnProcessStatusUpdatePassword.missingToken).and()
+				.loadThisIdFromEntity(JsEntityLoginTokenAttempts.ENTITY).and()
+				.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusUpdatePassword.lockedToken).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JsProcessStatusUpdatePassword.missingSaveAnswers).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginEmail.ENTITY).returnStatus(JsProcessStatusUpdatePassword.missingEmail).and()
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginToken.ENTITY).returnStatus(JsProcessStatusUpdatePassword.missingToken).and()
 				.executeAction(functionToEvaluateTokenAttempts).andFinallyReturningTheseFields(
 						JnJsonCommonsFields.userAgent,
 						JnJsonCommonsFields.timestamp,
@@ -334,7 +331,7 @@ public enum JsServiceLogin implements JnService {
 		 */
 		public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 
-			CcpEntity entity = JnEntityLoginTokenRequestResend.ENTITY;
+			CcpEntity entity = JsEntityLoginTokenRequestResend.ENTITY;
 
 			CcpEntity twinEntity = entity.getTwinEntity();
 
@@ -345,9 +342,9 @@ public enum JsServiceLogin implements JnService {
 			CcpJsonRepresentation result = ccpGetEntityId
 			.toBeginProcedureAnd()
 			.loadThisIdFromEntity(JnEntityDisposableRecord.ENTITY).and()
-			.ifThisIdIsNotPresentInEntity(JnEntityLoginToken.ENTITY).returnStatus(JnProcessStatusUnlockLoginToken.statusTokenNotExists).and()
-			.ifThisIdIsPresentInEntity(twinEntity).returnStatus(JnProcessStatusUnlockLoginToken.statusTokenAlredyResent).and()
-				.ifThisIdIsPresentInEntity(entity).returnStatus(JnProcessStatusUnlockLoginToken.statusAlreadyRequested)
+			.ifThisIdIsNotPresentInEntity(JsEntityLoginToken.ENTITY).returnStatus(JsProcessStatusUnlockLoginToken.statusTokenNotExists).and()
+			.ifThisIdIsPresentInEntity(twinEntity).returnStatus(JsProcessStatusUnlockLoginToken.statusTokenAlredyResent).and()
+				.ifThisIdIsPresentInEntity(entity).returnStatus(JsProcessStatusUnlockLoginToken.statusAlreadyRequested)
 				.andFinallyReturningTheseFields(
 						JnJsonCommonsFields.expirationDate,
 						JnJsonCommonsFields.dateItWasSaved,
@@ -372,7 +369,7 @@ public enum JsServiceLogin implements JnService {
 		 */
 		public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 
-			CcpEntity entity = JnEntityLoginTokenRequestUnlock.ENTITY;
+			CcpEntity entity = JsEntityLoginTokenRequestUnlock.ENTITY;
 
 			CcpEntity twinEntity = entity.getTwinEntity();
 
@@ -383,9 +380,9 @@ public enum JsServiceLogin implements JnService {
 			CcpJsonRepresentation result = ccpGetEntityId
 			.toBeginProcedureAnd()
 				.loadThisIdFromEntity(JnEntityDisposableRecord.ENTITY).and()
-				.ifThisIdIsNotPresentInEntity(JnEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JnProcessStatusUnlockLoginToken.statusTokenNotLocked).and()
-				.ifThisIdIsPresentInEntity(twinEntity).returnStatus(JnProcessStatusUnlockLoginToken.statusTokenAlredyUnlocked).and()
-				.ifThisIdIsPresentInEntity(entity).returnStatus(JnProcessStatusUnlockLoginToken.statusAlreadyRequested)
+				.ifThisIdIsNotPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusUnlockLoginToken.statusTokenNotLocked).and()
+				.ifThisIdIsPresentInEntity(twinEntity).returnStatus(JsProcessStatusUnlockLoginToken.statusTokenAlredyUnlocked).and()
+				.ifThisIdIsPresentInEntity(entity).returnStatus(JsProcessStatusUnlockLoginToken.statusAlreadyRequested)
 				.andFinallyReturningTheseFields(
 						JnJsonCommonsFields.expirationDate,
 						JnJsonCommonsFields.dateItWasSaved,
@@ -403,15 +400,15 @@ public enum JsServiceLogin implements JnService {
 	 * @return the evaluation
 	 */
 	protected CcpBusiness createFunctionToEvaluatePasswordAttempts() {
-		CcpBusiness lockPassword = CcpEntityOperationType.delete.getOperationCallback(JnEntityLoginPassword.ENTITY);
+		CcpBusiness lockPassword = CcpEntityOperationType.delete.getOperationCallback(JsEntityLoginPassword.ENTITY);
 		JnFunctionMensageriaSender executeLogin = new JnFunctionMensageriaSender(JsBusinessExecuteLogin.INSTANCE);
-		CcpBusiness functionToEvaluatePasswordAttempts = JnBusinessEvaluateAttempts.builder()
+		CcpBusiness functionToEvaluatePasswordAttempts = JsBusinessEvaluateAttempts.builder()
 				.entityToGetTheAttempts(JsEntityLoginPasswordAttempts.ENTITY)
-				.entityToGetTheSecret(JnEntityLoginPassword.ENTITY)
+				.entityToGetTheSecret(JsEntityLoginPassword.ENTITY)
 				.databaseFieldName(JnJsonCommonsFields.password)
 				.userFieldName(JnJsonCommonsFields.password)
-				.statusWhenExceedAttempts(JnProcessStatusExecuteLogin.passwordLockedRecently)
-				.statusWhenWrongType(JnProcessStatusExecuteLogin.wrongPassword)
+				.statusWhenExceedAttempts(JsProcessStatusExecuteLogin.passwordLockedRecently)
+				.statusWhenWrongType(JsProcessStatusExecuteLogin.wrongPassword)
 				.lockUsing(lockPassword)
 				.onSuccess(executeLogin)
 				.attemptsFieldName(JnJsonCommonsFields.attempts)
@@ -426,16 +423,16 @@ public enum JsServiceLogin implements JnService {
 	 * @return the evaluation
 	 */
 	protected CcpBusiness createFunctionToEvaluateTokenAttempts() {
-		CcpBusiness lockToken = CcpEntityOperationType.delete.getOperationCallback(JnEntityLoginToken.ENTITY);
+		CcpBusiness lockToken = CcpEntityOperationType.delete.getOperationCallback(JsEntityLoginToken.ENTITY);
 		JnFunctionMensageriaSender updatePassword = new JnFunctionMensageriaSender(JsBusinessSavePassword.INSTANCE);
 
-		CcpBusiness evaluateTokenAttempts = JnBusinessEvaluateAttempts.builder()
-				.entityToGetTheAttempts(JnEntityLoginTokenAttempts.ENTITY)
-				.entityToGetTheSecret(JnEntityLoginToken.ENTITY)
-				.databaseFieldName(JnEntityLoginToken.Fields.token)
-				.userFieldName(JnEntityLoginToken.Fields.token)
-				.statusWhenExceedAttempts(JnProcessStatusUpdatePassword.tokenLockedRecently)
-				.statusWhenWrongType(JnProcessStatusUpdatePassword.wrongToken)
+		CcpBusiness evaluateTokenAttempts = JsBusinessEvaluateAttempts.builder()
+				.entityToGetTheAttempts(JsEntityLoginTokenAttempts.ENTITY)
+				.entityToGetTheSecret(JsEntityLoginToken.ENTITY)
+				.databaseFieldName(JsEntityLoginToken.Fields.token)
+				.userFieldName(JsEntityLoginToken.Fields.token)
+				.statusWhenExceedAttempts(JsProcessStatusUpdatePassword.tokenLockedRecently)
+				.statusWhenWrongType(JsProcessStatusUpdatePassword.wrongToken)
 				.lockUsing(lockToken)
 				.onSuccess(updatePassword)
 				.attemptsFieldName(JnJsonCommonsFields.attempts)
@@ -454,7 +451,7 @@ public enum JsServiceLogin implements JnService {
 		CcpJsonRepresentation generatedSessionToken = CcpOtherConstants.EMPTY_JSON
 				.getTransformedJson(JnJsonTransformersFieldsEntityDefault.tokenHash)
 				.renameField(JnJsonCommonsFields.originalToken, CcpJsonCommonsFields.sessionToken)
-				.removeFields(JnEntityLoginSessionValidation.Fields.token)
+				.removeFields(JsEntityLoginSessionValidation.Fields.token)
 				;
 
 		CcpEntityMetaData entityMetaData = JnEntityEmailReportedAsSpam.ENTITY.getEntityMetaData();
@@ -467,8 +464,8 @@ public enum JsServiceLogin implements JnService {
 				;
 
 		CcpJsonRepresentation parametersToSearchInAllOtherEntities = json.mergeWithAnotherJson(parametersToSearchInMessageNotSend);
-		CcpJsonRepresentation parametersToSearchDataAboutToken = JnEntityLoginToken.ENTITY.getIdToSearchDisposableRecord(json);
-		CcpJsonRepresentation parametersToSearchDataAboutLockedToken = JnEntityLoginToken.ENTITY.getTwinEntity().getIdToSearchDisposableRecord(json);
+		CcpJsonRepresentation parametersToSearchDataAboutToken = JsEntityLoginToken.ENTITY.getIdToSearchDisposableRecord(json);
+		CcpJsonRepresentation parametersToSearchDataAboutLockedToken = JsEntityLoginToken.ENTITY.getTwinEntity().getIdToSearchDisposableRecord(json);
 
 		CcpJsonRepresentation[] parametersToSearchInAllEntities = new CcpJsonRepresentation[] {parametersToSearchInAllOtherEntities, parametersToSearchDataAboutToken, parametersToSearchDataAboutLockedToken};
 		return parametersToSearchInAllEntities;
