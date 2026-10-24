@@ -14,19 +14,19 @@ import com.ccp.especifications.db.utils.entity.decorators.enums.CcpEntityPhase;
 import com.jn.entities.JnEntityGrouper;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.jn.utils.JnGroupers;
-import com.js.entities.JsEntityLoginEmail;
+import com.jn.entities.JnEntityLoginEmail;
 import com.js.entities.JsEntityLoginSessionValidation;
 
 /**
  * The bulk items that keep the history of the logins of a user in the group of its e-mail in {@code jn_grouper}
- * ({@code parentName} {@code js_login_email}, {@code childName} {@code js_login_session_validation}): each login adds,
+ * ({@code parentName} {@code jn_login_email}, {@code childName} {@code js_login_session_validation}): each login adds,
  * on the main side, the JSON text {@code {userAgent, ip, loginDate}}, and each logout adds, on the twin side
  * ({@code jn_inactive_grouper}), the JSON text {@code {userAgent, ip, logoutDate}}, both dated now
  * ({@code dd/MM/yyyy HH:mm:ss}). Each side keeps the last {@link #MAX_CHILDREN}. The items go in the same bulk as the
  * session (the login and the logout write by bulk, which no side effect of the entity sees).
  * <p>
  * The json received is the one the bulk handlers receive, already transformed: its e-mail is the SHA-1, the value the
- * group keeps in {@code parentJson} and whose id in {@code js_login_email} is the {@code parentId}.
+ * group keeps in {@code parentJson} and whose id in {@code jn_login_email} is the {@code parentId}.
  */
 public class JsBulkItemsLoginHistory implements Function<CcpJsonRepresentation, List<CcpBulkItem>> {
 
@@ -82,10 +82,10 @@ public class JsBulkItemsLoginHistory implements Function<CcpJsonRepresentation, 
 		CcpJsonRepresentation eventWithDate = event.put(this.dateField, currentDate);
 		String child = eventWithDate.asUgglyJson();
 
-		CcpJsonRepresentation parentJson = json.getJsonPiece(JsEntityLoginEmail.Fields.email);
-		String parentId = JsEntityLoginEmail.ENTITY.calculateId(parentJson);
+		CcpJsonRepresentation parentJson = json.getJsonPiece(JnEntityLoginEmail.Fields.email);
+		String parentId = JnEntityLoginEmail.ENTITY.calculateId(parentJson);
 		Map<String, CcpJsonRepresentation> parents = Map.of(parentId, parentJson);
-		CcpEntityMetaData parentMetaData = JsEntityLoginEmail.ENTITY.getEntityMetaData();
+		CcpEntityMetaData parentMetaData = JnEntityLoginEmail.ENTITY.getEntityMetaData();
 		String parentName = parentMetaData.entityName;
 		CcpEntityMetaData childMetaData = JsEntityLoginSessionValidation.ENTITY.getEntityMetaData();
 		String childName = childMetaData.entityName;

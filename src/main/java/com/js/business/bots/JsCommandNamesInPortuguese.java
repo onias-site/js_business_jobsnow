@@ -7,5 +7,7 @@ import com.ccp.decorators.CcpJsonFieldName;
  */
 public enum JsCommandNamesInPortuguese implements CcpJsonFieldName{
 	solveLoginTokenTicket { public String getValue() { return "solucionarTicketsDeTokenDeLogin"; } },
+	answerContactUs { public String getValue() { return "responderFaleConosco"; } },
+	ignoredContactUs { public String getValue() { return "listarFaleConoscoIgnorados"; } },
 	;
 }

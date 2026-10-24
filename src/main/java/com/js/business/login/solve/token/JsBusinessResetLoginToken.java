@@ -11,7 +11,7 @@ import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired
 import com.jn.business.messages.JnMessages;
 import com.jn.db.bulk.JnExecuteBulkOperation;
 import com.jn.entities.JnEntityEmailMessageSent;
-import com.js.entities.JsEntityLoginEmail;
+import com.jn.entities.JnEntityLoginEmail;
 import com.js.entities.JsEntityLoginToken;
 import com.js.entities.JsEntityLoginTokenAttempts;
 import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDefault;
@@ -83,11 +83,11 @@ public class JsBusinessResetLoginToken implements CcpBusiness{
 	 */
 	private String getUserLanguage(CcpJsonRepresentation json) {
 		String systemLanguage = JnSystemProperties.INSTANCE.supportLanguage();
-		boolean loginEmailIsMissing = false == JsEntityLoginEmail.ENTITY.exists(json);
+		boolean loginEmailIsMissing = false == JnEntityLoginEmail.ENTITY.exists(json);
 		if(loginEmailIsMissing) {
 			return systemLanguage;
 		}
-		CcpJsonRepresentation loginEmail = JsEntityLoginEmail.ENTITY.getOneById(json);
+		CcpJsonRepresentation loginEmail = JnEntityLoginEmail.ENTITY.getOneById(json);
 		boolean languageIsMissing = false == loginEmail.containsField(JnJsonCommonsFields.language);
 		if(languageIsMissing) {
 			return systemLanguage;

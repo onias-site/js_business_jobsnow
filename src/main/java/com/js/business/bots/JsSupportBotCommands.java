@@ -8,5 +8,9 @@ public enum JsSupportBotCommands {
 
 	/** Solves the login token tickets (resend or unlock the token). */
 	solveLoginTokenTicket,
+	/** Answers a ticket of the "contact us", leaves it open to go to the next one, or ignores the user. */
+	answerContactUs,
+	/** Lists the users ignored while answering a ticket of the "contact us", to stop ignoring them. */
+	ignoredContactUs,
 	;
 }
