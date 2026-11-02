@@ -22,7 +22,7 @@ import com.js.business.login.JsBusinessExecuteLogout;
 import com.js.business.login.JsBusinessSavePassword;
 import com.jn.business.messages.JnMessages;
 import com.jn.entities.JnEntityDisposableRecord;
-import com.jn.entities.JnEntityEmailReportedAsSpam;
+import com.jn.entities.JnEntityEmailSuppressed;
 import com.js.entities.JsEntityLoginAnswers;
 import com.jn.entities.JnEntityLoginEmail;
 import com.js.entities.JsEntityLoginPassword;
@@ -229,7 +229,7 @@ public enum JsServiceLogin implements JnService {
 	},
 	/**
 	 * Creates and sends the login token. In order: a locked token (403), an e-mail that can not receive the message, for
-	 * example reported as spam (422), a token sent recently (409), no login e-mail (404); a token not created yet is saved,
+	 * example suppressed by the provider (422), a token sent recently (409), no login e-mail (404); a token not created yet is saved,
 	 * which sends it by e-mail.
 	 */
 	CreateLoginToken {
@@ -443,7 +443,7 @@ public enum JsServiceLogin implements JnService {
 
 	/**
 	 * Builds the search parameters: the request plus a new session token and the keys of the "message not sent" record
-	 * (spam report of the token e-mail), and the keys of the expiration copies of the token and of the locked token.
+	 * (address of the token e-mail suppressed by the provider), and the keys of the expiration copies of the token and of the locked token.
 	 * @param json the request
 	 * @return the search parameters
 	 */
@@ -454,7 +454,7 @@ public enum JsServiceLogin implements JnService {
 				.removeFields(JsEntityLoginSessionValidation.Fields.token)
 				;
 
-		CcpEntityMetaData entityMetaData = JnEntityEmailReportedAsSpam.ENTITY.getEntityMetaData();
+		CcpEntityMetaData entityMetaData = JnEntityEmailSuppressed.ENTITY.getEntityMetaData();
 
 		String subjectType = JnMessages.JnNotifyUserAboutLoginToken.class.getName();
 
