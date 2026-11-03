@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ccp.constants.CcpOtherConstants;
+import com.ccp.decorators.CcpFieldName;
 import com.ccp.decorators.CcpJsonFieldName;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
@@ -43,6 +44,7 @@ import com.jn.utils.JnDeleteKeysFromCache;
 import com.jn.utils.JnLanguage;
 import com.js.business.bots.contact.us.JsSupportContactUsBotConfiguration;
 import com.js.business.bots.contact.us.ignored.JsSupportIgnoredContactUsBotConfiguration;
+import com.js.business.privacy.JsPrivacyPolicyMessages;
 import com.js.business.contact.us.JsBusinessDiscardContactUsOfIgnoredUser;
 import com.js.json.fields.validation.JsContactUsTypes;
 import com.js.messages.JsContactUsMessageFields;
@@ -93,14 +95,28 @@ public class JsEntityContactUs implements CcpEntityConfigurator {
 	/** The texts of the seeds that are not placeholders. */
 	enum SeedTexts implements CcpJsonFieldName {
 		/** The sender of the e-mails. */
-		sender { public String getValue() { return "devs.jobsnow@gmail.com"; } },
+		sender { public String getValue() { return "curriculos@onias.site"; } },
+	}
+
+	/**
+	 * Adds the topic of a kind of ticket.
+	 * @param messageThreadIds the topics already added
+	 * @param type the kind of ticket
+	 * @param messageThreadId the topic of the group
+	 * @return the topics with this one
+	 */
+	private CcpJsonRepresentation withMessageThreadId(CcpJsonRepresentation messageThreadIds, JsContactUsTypes type, long messageThreadId) {
+		String typeName = type.name();
+		CcpFieldName typeField = new CcpFieldName(typeName);
+		CcpJsonRepresentation messageThreadIdsWithThisOne = messageThreadIds.put(typeField, messageThreadId);
+		return messageThreadIdsWithThisOne;
 	}
 
 	/**
 	 * Seeds the notices of a saved ticket (the e-mail to the user, the command to the support bot operator and their
 	 * sending parameters), the e-mail of the answer, the label of each {@link JsContactUsTypes} in Portuguese and English,
 	 * the commands {@code /answerContactUs} and {@code /ignoredContactUs} of the support bot, and the subscriber of the
-	 * ignoring of a user, which discards their open tickets.
+	 * ignoring of a user, which discards their open tickets, and the privacy policy in Portuguese and English.
 	 * @return the seed records
 	 */
 	public List<CcpBulkItem> getFirstRecordsToInsert() {
@@ -126,8 +142,18 @@ public class JsEntityContactUs implements CcpEntityConfigurator {
 				.addToItem(JnJsonCommonsFields.moreParameters, JnJsonCommonsFields.sleepToSendMessage, 3000);
 		CcpJsonRepresentation parametersWithBotName = parametersWithSleepTime
 				.put(JnJsonInstantMessengerFields.botName, JnMessageType.JnBotType.support);
-		CcpJsonRepresentation parametersToTheOperator = parametersWithBotName
-				.put(JnJsonInstantMessengerFields.chatId, 751717896L);
+		CcpJsonRepresentation parametersWithChatId = parametersWithBotName
+				.put(JnJsonInstantMessengerFields.chatId, -1004428777693L);
+		CcpJsonRepresentation parametersWithOperatorChatId = parametersWithChatId
+				.addToItem(JnJsonCommonsFields.moreParameters, JnJsonInstantMessengerFields.operatorChatId, 751717896L);
+		CcpJsonRepresentation messageThreadIdOfBugs = this.withMessageThreadId(CcpOtherConstants.EMPTY_JSON, JsContactUsTypes.reportBug, 5L);
+		CcpJsonRepresentation messageThreadIdsUpToDoubts = this.withMessageThreadId(messageThreadIdOfBugs, JsContactUsTypes.clarifyDoubts, 6L);
+		CcpJsonRepresentation messageThreadIdsUpToCriticisms = this.withMessageThreadId(messageThreadIdsUpToDoubts, JsContactUsTypes.makeCriticism, 7L);
+		CcpJsonRepresentation messageThreadIdsUpToSuggestions = this.withMessageThreadId(messageThreadIdsUpToCriticisms, JsContactUsTypes.makeSuggestion, 8L);
+		CcpJsonRepresentation messageThreadIdsUpToCompliments = this.withMessageThreadId(messageThreadIdsUpToSuggestions, JsContactUsTypes.makeCompliment, 9L);
+		CcpJsonRepresentation messageThreadIds = this.withMessageThreadId(messageThreadIdsUpToCompliments, JsContactUsTypes.makeComment, 10L);
+		CcpJsonRepresentation parametersToTheOperator = parametersWithOperatorChatId
+				.addToItem(JnJsonCommonsFields.moreParameters, JnJsonInstantMessengerFields.messageThreadIds, messageThreadIds);
 
 		String typeDescription = "{" + JsContactUsMessageFields.typeDescription + "}";
 		String escapedTitle = "{" + JsContactUsMessageFields.escapedTitle + "}";
@@ -177,6 +203,10 @@ public class JsEntityContactUs implements CcpEntityConfigurator {
 		// ignoring a user (in any command, of any cost center) discards their open tickets
 		List<CcpBulkItem> subscriberItems = JnEntityWriteEventSubscribers.getSeeds(JnEntityCommandNotAllowedToUser.ENTITY, CcpEntityDecoratorOperationType.save, JsBusinessDiscardContactUsOfIgnoredUser.class);
 		firstRecords.addAll(subscriberItems);
+
+		// the privacy policy, public as the contact us: the page the footer of every e-mail links to
+		List<CcpBulkItem> privacyPolicyItems = JsPrivacyPolicyMessages.getSeeds();
+		firstRecords.addAll(privacyPolicyItems);
 		return firstRecords;
 	}
 

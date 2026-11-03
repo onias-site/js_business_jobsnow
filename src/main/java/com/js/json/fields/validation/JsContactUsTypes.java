@@ -15,18 +15,18 @@ import com.jn.messages.JnSystemMessage;
  * </ul>
  */
 public enum JsContactUsTypes implements JnSystemMessage {
-	/** Reporting a bug: priority 0, no daily limit. */
-	reportBug(0, JnTicketQuotaGroups.unlimited),
-	/** Giving a compliment: priority 5, shared daily quota. */
-	makeCompliment(5, JnTicketQuotaGroups.sharedTickets),
-	/** Making a criticism: priority 2, shared daily quota. */
-	makeCriticism(2, JnTicketQuotaGroups.sharedTickets),
-	/** Making a suggestion: priority 4, shared daily quota. */
-	makeSuggestion(4, JnTicketQuotaGroups.sharedTickets),
-	/** Making a comment: priority 5, shared daily quota. */
-	makeComment(5, JnTicketQuotaGroups.sharedTickets),
-	/** Clarifying doubts: priority 1, daily quota of its own. */
-	clarifyDoubts(1, JnTicketQuotaGroups.clarifyDoubts),
+	/** Reporting a bug: priority 1, no daily limit. */
+	reportBug(1, JnTicketQuotaGroups.unlimited),
+	/** Giving a compliment: priority 6, shared daily quota. */
+	makeCompliment(6, JnTicketQuotaGroups.sharedTickets),
+	/** Making a criticism: priority 3, shared daily quota. */
+	makeCriticism(3, JnTicketQuotaGroups.sharedTickets),
+	/** Making a suggestion: priority 5, shared daily quota. */
+	makeSuggestion(5, JnTicketQuotaGroups.sharedTickets),
+	/** Making a comment: priority 6, shared daily quota. */
+	makeComment(6, JnTicketQuotaGroups.sharedTickets),
+	/** Clarifying doubts: priority 2, daily quota of its own. */
+	clarifyDoubts(2, JnTicketQuotaGroups.clarifyDoubts),
 	;
 
 	/** The priority of the ticket of the support operator: the lower, the sooner it is shown. */

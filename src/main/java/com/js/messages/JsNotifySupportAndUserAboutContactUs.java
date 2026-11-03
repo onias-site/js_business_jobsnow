@@ -21,7 +21,8 @@ public class JsNotifySupportAndUserAboutContactUs implements JnMessageTemplate, 
 	private JsNotifySupportAndUserAboutContactUs() {}
 
 	/**
-	 * Prepares the values of the messages ({@link JsContactUsMessageValues}) and the priority of the ticket of the operator.
+	 * Prepares the values of the messages ({@link JsContactUsMessageValues}), the priority of the ticket of the operator
+	 * and the topic of the notice, one per {@code type}.
 	 * @param json the ticket
 	 * @return the values of the templates
 	 */
@@ -29,6 +30,8 @@ public class JsNotifySupportAndUserAboutContactUs implements JnMessageTemplate, 
 		CcpJsonRepresentation preparedJson = JsContactUsMessageValues.prepare(json);
 		JsContactUsTypes type = json.getAsEnum(JsEntityContactUs.Fields.type, JsContactUsTypes.class);
 		CcpJsonRepresentation jsonWithPriority = preparedJson.put(JnJsonInstantMessengerFields.priority, type.priority);
-		return jsonWithPriority;
+		String messageThreadKey = type.name();
+		CcpJsonRepresentation jsonWithMessageThreadKey = jsonWithPriority.put(JnJsonInstantMessengerFields.messageThreadKey, messageThreadKey);
+		return jsonWithMessageThreadKey;
 	}
 }
