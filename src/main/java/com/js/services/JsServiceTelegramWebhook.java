@@ -3,6 +3,7 @@ package com.js.services;
 import com.ccp.constants.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.jn.business.bots.JnBusinessHandleBotUpdate;
+import com.jn.json.fields.validation.JnJsonInstantMessengerFields;
 import com.jn.mensageria.JnFunctionMensageriaSender;
 import com.jn.services.JnService;
 import com.js.business.telegram.JsBusinessValidateTelegramWebhookSecret;
@@ -16,10 +17,12 @@ public enum JsServiceTelegramWebhook implements JnService {
 
 	/**
 	 * Receives an update pushed by Telegram: refuses a request without the secret of the bot and publishes the update to
-	 * the messaging (topic {@code JnBusinessHandleBotUpdate}), whose consumer hands it to the bot. The request does no
+	 * the queue of the bot (topic {@code JnBusinessHandleBotUpdate~<bot>}, since 2026-11-05; each bot has its own address,
+	 * {@code /telegram-webhook/<bot>}), whose consumer hands it to the bot. The request does no
 	 * more than that: the commands of a bot may run complex queries, and since the bots will also serve the public, not
 	 * only the support team, running them here would break OQL (until 2026-11-04 the bot ran inside this request).
-	 * The consumer of the topic has a single thread, so the updates of a bot are handled one at a time, as they were here.
+	 * The consumer of the queue of each bot has a single thread, so the updates of a bot are handled one at a time and in
+	 * order, and the bots do not wait for one another.
 	 */
 	ReceiveTelegramUpdate{
 		/**
@@ -31,7 +34,8 @@ public enum JsServiceTelegramWebhook implements JnService {
 			JsBusinessValidateTelegramWebhookSecret.INSTANCE.execute(json);
 			// from here on the JSON reaches the messaging and the logs of the bot and of the errors, and the secret must not
 			CcpJsonRepresentation update = json.removeFields(JsBusinessValidateTelegramWebhookSecret.Fields.webhookSecret);
-			JnFunctionMensageriaSender handleBotUpdate = new JnFunctionMensageriaSender(JnBusinessHandleBotUpdate.INSTANCE);
+			String botName = update.getAsString(JnJsonInstantMessengerFields.botName);
+			JnFunctionMensageriaSender handleBotUpdate = new JnFunctionMensageriaSender(JnBusinessHandleBotUpdate.INSTANCE, botName);
 			handleBotUpdate.execute(update);
 			return CcpOtherConstants.EMPTY_JSON;
 		}
