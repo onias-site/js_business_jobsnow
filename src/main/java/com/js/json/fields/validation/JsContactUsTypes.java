@@ -10,8 +10,8 @@ import com.jn.messages.JnSystemMessage;
  * <li>its label, written in the language of the reader (a text of {@code JnEntitySystemMessage}, seeded by
  * {@code JsEntityContactUs}), shown in the e-mails to the user and to the support bot operator;</li>
  * <li>the priority of its ticket in {@code /pendingTickets} (the lower, the sooner it is shown);</li>
- * <li>its group of daily quota: a bug is never limited (until the operator ignores the user), a question has a quota
- * of its own, and the other kinds share the quota of the skill suggestion and of the skill hierarchy fix.</li>
+ * <li>its group of daily quota: a bug is never limited (until the operator ignores the user), a question and a
+ * criticism have a quota of their own each, and the other kinds share the quota of the skill suggestion and of the skill hierarchy fix.</li>
  * </ul>
  */
 public enum JsContactUsTypes implements JnSystemMessage {
@@ -19,8 +19,8 @@ public enum JsContactUsTypes implements JnSystemMessage {
 	reportBug(1, JnTicketQuotaGroups.unlimited),
 	/** Giving a compliment: priority 6, shared daily quota. */
 	makeCompliment(6, JnTicketQuotaGroups.sharedTickets),
-	/** Making a criticism: priority 3, shared daily quota. */
-	makeCriticism(3, JnTicketQuotaGroups.sharedTickets),
+	/** Making a criticism: priority 3, daily quota of its own. */
+	makeCriticism(3, JnTicketQuotaGroups.makeCriticism),
 	/** Making a suggestion: priority 5, shared daily quota. */
 	makeSuggestion(5, JnTicketQuotaGroups.sharedTickets),
 	/** Making a comment: priority 6, shared daily quota. */

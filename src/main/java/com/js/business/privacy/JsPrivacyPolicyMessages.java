@@ -27,7 +27,7 @@ public enum JsPrivacyPolicyMessages implements JnSystemMessage {
 		String portuguesePolicy = String.join("\n"
 				, "# Política de privacidade"
 				, "## 1. Quem somos"
-				, "O JobsNow (https://onias.site) é uma plataforma que aproxima candidatos e recrutadores. O controlador dos dados pessoais é Onias Vieira Junior, fundador do JobsNow, com endereço na Avenida Alda, 858, cj. 193, Torre 1, Centro, Diadema, SP, CEP 09910-170, Brasil."
+				, "O Onias.Site (https://onias.site) é uma plataforma que aproxima candidatos e recrutadores. O controlador dos dados pessoais é Onias Vieira Junior, fundador do Onias.Site."
 				, "Para qualquer assunto sobre os seus dados pessoais, escreva para privacidade@onias.site."
 				, "## 2. Quais dados tratamos"
 				, "Tratamos apenas os dados necessários para o funcionamento da plataforma:"
@@ -59,13 +59,13 @@ public enum JsPrivacyPolicyMessages implements JnSystemMessage {
 				, "Os dados trafegam por conexões criptografadas (HTTPS), as senhas são guardadas apenas como hash e o acesso aos servidores é restrito."
 				, "## 11. Alterações desta política"
 				, "Quando esta política mudar, a data abaixo será atualizada."
-				, "Última atualização: 2 de novembro de 2026."
+				, "Última atualização: 7 de novembro de 2026."
 				);
 
 		String englishPolicy = String.join("\n"
 				, "# Privacy policy"
 				, "## 1. Who we are"
-				, "JobsNow (https://onias.site) is a platform that brings candidates and recruiters together. The controller of the personal data is Onias Vieira Junior, founder of JobsNow, at Avenida Alda, 858, cj. 193, Torre 1, Centro, Diadema, SP, ZIP 09910-170, Brazil."
+				, "Onias.Site (https://onias.site) is a platform that brings candidates and recruiters together. The controller of the personal data is Onias Vieira Junior, founder of Onias.Site."
 				, "For any matter about your personal data, write to privacidade@onias.site."
 				, "## 2. Which data we process"
 				, "We process only the data the platform needs to work:"
@@ -97,7 +97,7 @@ public enum JsPrivacyPolicyMessages implements JnSystemMessage {
 				, "The data travels over encrypted connections (HTTPS), passwords are kept only as a hash and access to the servers is restricted."
 				, "## 11. Changes to this policy"
 				, "When this policy changes, the date below will be updated."
-				, "Last update: November 2, 2026."
+				, "Last update: November 7, 2026."
 				);
 
 		List<CcpBulkItem> seeds = new ArrayList<>();
