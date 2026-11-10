@@ -8,13 +8,14 @@ import com.jn.business.grouper.JnBusinessGetGroup;
 import com.jn.business.grouper.JnBusinessGetGroupOnBothSides;
 import com.jn.entities.JnEntityGrouper;
 import com.jn.services.JnService;
+import com.js.business.grouper.JsBusinessOnlyTheGroupsOfTheSessionOwner;
 
 /** The groups of {@code jn_grouper}, read by their primary key through the common read of the groups. */
 public enum JsServiceGrouper implements JnService {
 
 	/**
-	 * A group by id ({@code parentName}, {@code childName} and {@code parentId}), on the side asked ({@code mainEntity} by
-	 * default, or {@code twinEntity}); a group that does not exist on that side answers 404.
+	 * A group of the logged-in user by id ({@code parentName}, {@code childName} and {@code parentId}), on the side asked ({@code mainEntity} by
+	 * default, or {@code twinEntity}); a group that does not exist on that side, or that is not of the logged-in user, answers 404.
 	 */
 	GetGroup {
 		/**
@@ -24,6 +25,7 @@ public enum JsServiceGrouper implements JnService {
 		 * @throws CcpErrorFlowDisturb with {@code NOT_FOUND} when the group does not exist on that side
 		 */
 		public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
+			JsBusinessOnlyTheGroupsOfTheSessionOwner.INSTANCE.execute(json);
 			CcpJsonRepresentation group = JnBusinessGetGroup.INSTANCE.execute(json);
 			boolean notFound = group.isEmpty();
 
@@ -55,6 +57,7 @@ public enum JsServiceGrouper implements JnService {
 		 * @throws CcpErrorFlowDisturb with {@code NOT_FOUND} when the group exists on neither side
 		 */
 		public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
+			JsBusinessOnlyTheGroupsOfTheSessionOwner.INSTANCE.execute(json);
 			CcpJsonRepresentation groupOnBothSides = JnBusinessGetGroupOnBothSides.INSTANCE.execute(json);
 			CcpJsonRepresentation activeGroup = groupOnBothSides.getInnerJson(JnEntityGrouper.ENTITY);
 			CcpEntity inactiveGrouper = JnEntityGrouper.ENTITY.getTwinEntity();

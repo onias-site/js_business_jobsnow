@@ -396,12 +396,14 @@ public enum JsServiceLogin implements JnService {
 	;
 	/**
 	 * Builds the evaluation of the password: a wrong one returns 427, the last allowed one deletes (locks) the password and
-	 * returns 429, a right one runs {@code JsBusinessExecuteLogin} asynchronously.
+	 * returns 429, a right one runs {@code JsBusinessExecuteLogin} in the request itself. Until 2026-11-10 it ran through
+	 * the messaging (asynchronous): the session token came back before the session was written, the first calls of the
+	 * front got 401, each one counted as an attempt and the third locked the password (defect R05-1).
 	 * @return the evaluation
 	 */
 	protected CcpBusiness createFunctionToEvaluatePasswordAttempts() {
 		CcpBusiness lockPassword = CcpEntityOperationType.delete.getOperationCallback(JsEntityLoginPassword.ENTITY);
-		JnFunctionMensageriaSender executeLogin = new JnFunctionMensageriaSender(JsBusinessExecuteLogin.INSTANCE);
+		CcpBusiness executeLogin = JsBusinessExecuteLogin.INSTANCE;
 		CcpBusiness functionToEvaluatePasswordAttempts = JsBusinessEvaluateAttempts.builder()
 				.entityToGetTheAttempts(JsEntityLoginPasswordAttempts.ENTITY)
 				.entityToGetTheSecret(JsEntityLoginPassword.ENTITY)
@@ -419,12 +421,13 @@ public enum JsServiceLogin implements JnService {
 
 	/**
 	 * Builds the evaluation of the token: a wrong one returns 427, the last allowed one deletes (locks) the token and returns
-	 * 429, a right one runs {@code JsBusinessSavePassword} asynchronously.
+	 * 429, a right one runs {@code JsBusinessSavePassword} in the request itself (asynchronous until 2026-11-10: the new
+	 * session was not written yet when the front used it, defect R05-1).
 	 * @return the evaluation
 	 */
 	protected CcpBusiness createFunctionToEvaluateTokenAttempts() {
 		CcpBusiness lockToken = CcpEntityOperationType.delete.getOperationCallback(JsEntityLoginToken.ENTITY);
-		JnFunctionMensageriaSender updatePassword = new JnFunctionMensageriaSender(JsBusinessSavePassword.INSTANCE);
+		CcpBusiness updatePassword = JsBusinessSavePassword.INSTANCE;
 
 		CcpBusiness evaluateTokenAttempts = JsBusinessEvaluateAttempts.builder()
 				.entityToGetTheAttempts(JsEntityLoginTokenAttempts.ENTITY)
