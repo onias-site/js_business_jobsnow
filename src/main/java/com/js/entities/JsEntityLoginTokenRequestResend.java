@@ -1,6 +1,9 @@
 package com.js.entities;
 
+import java.util.List;
+
 import com.ccp.decorators.CcpJsonFieldName;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityAsyncWriter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
@@ -25,6 +28,7 @@ import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDoNothi
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.jn.json.fields.validation.JnJsonInstantMessengerFields;
 import com.jn.utils.JnDeleteKeysFromCache;
+import com.js.business.bots.login.resend.JsUserResendLoginTokenBotConfiguration;
 
 /**
  * A request of the user to receive the login token again: its insertion notifies support of the pending request and its deletion (when support fulfills it) notifies the solution; the twin keeps the fulfilled requests.
@@ -75,5 +79,15 @@ public class JsEntityLoginTokenRequestResend implements CcpEntityConfigurator {
 		@CcpJsonCopyFieldValidationsFrom(JnJsonInstantMessengerFields.class)
 		chatId
 		;
+	}
+
+	/**
+	 * The command {@code /resendLoginToken <email>} of the user bot (since 2026-11-12), which makes the same request as
+	 * the login screen.
+	 * @return the seed records
+	 */
+	public List<CcpBulkItem> getFirstRecordsToInsert() {
+		List<CcpBulkItem> botSeeds = JsUserResendLoginTokenBotConfiguration.getSeeds();
+		return botSeeds;
 	}
 }

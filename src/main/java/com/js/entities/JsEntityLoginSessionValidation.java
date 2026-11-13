@@ -1,5 +1,6 @@
 package com.js.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ccp.decorators.CcpJsonFieldName;
@@ -23,6 +24,7 @@ import com.jn.entities.decorators.engine.JnDisposableEntity;
 import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDefault;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.jn.utils.JnDeleteKeysFromCache;
+import com.js.business.login.JsBusinessCheckTypedLoginToken;
 import com.js.business.login.JsBusinessValidateLogin;
 import com.js.entities.fields.transformers.JsJsonTransformersFieldEntityTokenHash;
 
@@ -97,6 +99,10 @@ public class JsEntityLoginSessionValidation implements CcpEntityConfigurator {
 	 */
 	public List<CcpBulkItem> getFirstRecordsToInsert() {
 		List<CcpBulkItem> sessionValidatorSeeds = JnEntitySessionValidator.getSeeds(JnSessionValidatorNames.userSession, JsBusinessValidateLogin.class);
-		return sessionValidatorSeeds;
+		// the login token typed in the user bot (/receiveMessages), checked by vis without importing js
+		List<CcpBulkItem> loginTokenValidatorSeeds = JnEntitySessionValidator.getSeeds(JnSessionValidatorNames.loginToken, JsBusinessCheckTypedLoginToken.class);
+		List<CcpBulkItem> seeds = new ArrayList<>(sessionValidatorSeeds);
+		seeds.addAll(loginTokenValidatorSeeds);
+		return seeds;
 	}
 }
