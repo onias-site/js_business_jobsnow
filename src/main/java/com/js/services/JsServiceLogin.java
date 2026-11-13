@@ -120,9 +120,9 @@ public enum JsServiceLogin implements JnService {
 		}
 	},
 	/**
-	 * Registers the login e-mail (the first step of the login). In order: a locked token (403), a locked password (423), an
-	 * open session (409); a new e-mail is saved; then no onboarding answers (201) and no password (202) tell which screen
-	 * comes next.
+	 * Registers the login e-mail (the first step of the login). In order: a locked token (403), a locked password (423); a
+	 * new e-mail is saved; then no onboarding answers (201) and no password (202) tell which screen comes next. An open
+	 * session is not checked here: it is told only when the user tries the password ({@code ExecuteLogin}, 409).
 	 */
 	CreateLoginEmail {
 		/**
@@ -136,7 +136,6 @@ public enum JsServiceLogin implements JnService {
 			.toBeginProcedureAnd()
 				.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusCreateLoginEmail.lockedToken).and()
 				.ifThisIdIsPresentInEntity(JsEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusCreateLoginEmail.lockedPassword).and()
-				.ifThisIdIsPresentInEntity(JsEntityLoginSessionConflict.ENTITY).returnStatus(JsProcessStatusCreateLoginEmail.loginConflict).and()
 				.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).executeAction(action).and()
 				.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JsProcessStatusCreateLoginEmail.missingSaveAnswers).and()
 				.ifThisIdIsNotPresentInEntity(JsEntityLoginPassword.ENTITY).returnStatus(JsProcessStatusCreateLoginEmail.missingSavePassword).andFinallyReturningTheseFields(JsonFieldNames.inexistentField)
@@ -148,7 +147,9 @@ public enum JsServiceLogin implements JnService {
 	},
 	/**
 	 * Tells how complete the registration of the e-mail is: a locked token (403), no login e-mail (404), a locked password
-	 * (423), an open session (409), no onboarding answers (201), no password (202), or complete (200).
+	 * (423), no onboarding answers (201), no password (202), or complete (200). An open session is not checked here: it is
+	 * told only when the user tries the password ({@code ExecuteLogin}, 409); until 2026-11-12 the check of the e-mail
+	 * already answered 409.
 	 */
 	ExistsLoginEmail {
 		/**
@@ -163,7 +164,6 @@ public enum JsServiceLogin implements JnService {
 					.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusExistsLoginEmail.lockedToken).and()
 					.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.missingEmail).and()
 					.ifThisIdIsPresentInEntity(JsEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusExistsLoginEmail.lockedPassword).and()
-					.ifThisIdIsPresentInEntity(JsEntityLoginSessionConflict.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.loginConflict).and()
 					.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.missingAnswers).and()
 					.ifThisIdIsNotPresentInEntity(JsEntityLoginPassword.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.missingPassword)
 					.andFinallyReturningTheseFields(JsonFieldNames.inexistentField)
@@ -200,8 +200,8 @@ public enum JsServiceLogin implements JnService {
 
 	},
 	/**
-	 * Saves the onboarding answers. In order: a locked token (403), no login e-mail (404), an open session (409), a locked
-	 * password (423); answers not saved yet are saved; then no password (202).
+	 * Saves the onboarding answers. In order: a locked token (403), no login e-mail (404), a locked password (423); answers
+	 * not saved yet are saved; then no password (202). An open session is told only by {@code ExecuteLogin} (409).
 	 */
 	SaveAnswers {
 		/**
@@ -216,7 +216,6 @@ public enum JsServiceLogin implements JnService {
 			.toBeginProcedureAnd()
 				.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusSaveAnswers.lockedToken).and()
 				.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).returnStatus(JsProcessStatusSaveAnswers.missingToken).and()
-				.ifThisIdIsPresentInEntity(JsEntityLoginSessionConflict.ENTITY).returnStatus(JsProcessStatusSaveAnswers.loginConflict).and()
 				.ifThisIdIsPresentInEntity(JsEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusSaveAnswers.lockedPassword).and()
 				.ifThisIdIsNotPresentInEntity(JsEntityLoginAnswers.ENTITY).executeAction(action)
 	 			.and().ifThisIdIsNotPresentInEntity(JsEntityLoginPassword.ENTITY).returnStatus(JsProcessStatusSaveAnswers.missingPassword)

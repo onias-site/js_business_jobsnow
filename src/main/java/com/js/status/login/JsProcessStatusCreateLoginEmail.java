@@ -15,8 +15,6 @@ public enum JsProcessStatusCreateLoginEmail implements CcpProcessStatus{
 	missingEmail(404),
 	/** Status 423: the password is locked (427 until 2026-10-14, the status of the wrong password in the login). */
 	lockedPassword(423),
-	/** Status 409: the user already has an open session. */
-	loginConflict(409),
 	/** Status 202: the user has not defined a password yet. */
 	missingSavePassword(202),
 	/** Status 201: the user has not answered the onboarding questions yet. */

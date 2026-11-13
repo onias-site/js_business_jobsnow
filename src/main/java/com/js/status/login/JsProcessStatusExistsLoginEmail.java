@@ -14,8 +14,6 @@ public enum JsProcessStatusExistsLoginEmail implements CcpProcessStatus{
 	lockedPassword(423),
 	/** Status 422: the request is invalid. */
 	invalidJson(422),
-	/** Status 409: the user already has an open session. */
-	loginConflict(409),
 	/** Status 202: the user has not defined a password yet. */
 	missingPassword(202),
 	/** Status 201: the user has not answered the onboarding questions yet. */

@@ -19,6 +19,8 @@ import com.jn.entities.decorators.engine.JnVersionablePurgeEntity;
 import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDefault;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.jn.utils.JnDeleteKeysFromCache;
+import com.js.business.login.JsBusinessDeleteTokenResentWithoutPassword;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.operations.CcpAfterInsertFromMainEntity;
 
 /**
  * The BCrypt hash of the password of the user; the twin holds the passwords locked after too many wrong attempts.
@@ -29,8 +31,11 @@ import com.jn.utils.JnDeleteKeysFromCache;
  * <li>twin entity {@code js_login_password_locked}</li>
  * <li>records cached for 3600 seconds</li>
  * <li>versionable: every write keeps the previous state in {@code jn_versionable}</li>
+ * <li>after each insertion, the record of {@code js_login_token_resent_without_password} is deleted
+ * ({@link JsBusinessDeleteTokenResentWithoutPassword})</li>
  * </ul>
  */
+@CcpAfterInsertFromMainEntity(execute = {JsBusinessDeleteTokenResentWithoutPassword.class}, operationHandlers = {})
 @CcpEntityCache(3600)
 @CcpEntityVersionable(JnVersionableEntity.class)
 @CcpEntityVersionablePurge(JnVersionablePurgeEntity.class)
