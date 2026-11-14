@@ -13,6 +13,7 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityC
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChild;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChildCounter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperParentCombinations;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityTwin;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.messages.write.CcpAfterDeleteFromMainEntitySendAnEmailMessageAndIfFailsThrowAnError;
@@ -36,6 +37,12 @@ import com.jn.entities.JnEntityLoginEmail;
 import com.jn.entities.JnEntityWriteEventSubscribers;
 import com.jn.entities.decorators.engine.JnGrouperChildAsJsonEntityAfterWrite;
 import com.jn.entities.decorators.engine.JnGrouperChildAsJsonOnBothSidesEntityBeforeWrite;
+import com.jn.entities.decorators.engine.JnGrouperChildCounterEntityBeforeWrite;
+import com.jn.entities.JnEntityGrouperChartsProviders;
+import com.jn.json.fields.validation.JnGrouperChartsScreens;
+import com.js.business.grouper.JsBusinessCuriositiesCharts;
+import com.js.json.transformers.JsContactUsTypeCounterCombinations;
+import com.js.json.transformers.JsContactUsTypeCounterKeys;
 import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDefault;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.jn.json.fields.validation.JnJsonInstantMessengerFields;
@@ -73,6 +80,9 @@ import com.js.messages.JsNotifyUserAboutAnsweredContactUs;
  */
 @CcpEntityGrouperChild(value = {JnEntityLoginEmail.class}, beforeDecoratorClass = JnGrouperChildAsJsonOnBothSidesEntityBeforeWrite.class, afterDecoratorClass = JnGrouperChildAsJsonEntityAfterWrite.class)
 @CcpEntityGrouperParentCombinations(parent = JnEntityLoginEmail.class, value = JnLoginEmailParentCombinations.class)
+// the tickets ever opened, by type (a history: the answer does not subtract): the chart of the screen Curiosities
+@CcpEntityGrouperChildCounter(value = {JsEntityVirtualContactUsTypeCounter.class}, counterKeyClass = JsContactUsTypeCounterKeys.class, beforeDecoratorClass = JnGrouperChildCounterEntityBeforeWrite.class)
+@CcpEntityGrouperParentCombinations(parent = JsEntityVirtualContactUsTypeCounter.class, value = JsContactUsTypeCounterCombinations.class)
 @CcpEntityCache(3600)
 @CcpEntityFieldsTransformer(JnJsonTransformersFieldsEntityDefault.class)
 @CcpEntityFieldsValidator(JsEntityContactUs.Fields.class)
@@ -207,6 +217,10 @@ public class JsEntityContactUs implements CcpEntityConfigurator {
 		// the privacy policy, public as the contact us: the page the footer of every e-mail links to
 		List<CcpBulkItem> privacyPolicyItems = JsPrivacyPolicyMessages.getSeeds();
 		firstRecords.addAll(privacyPolicyItems);
+
+		// the charts of js in the screen Curiosities, read by JnBusinessGetGrouperCharts
+		List<CcpBulkItem> curiositiesProviders = JnEntityGrouperChartsProviders.getSeeds(JnGrouperChartsScreens.curiosities, JsBusinessCuriositiesCharts.class);
+		firstRecords.addAll(curiositiesProviders);
 		return firstRecords;
 	}
 
