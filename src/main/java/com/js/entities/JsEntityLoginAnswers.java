@@ -7,6 +7,7 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityF
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChildCounter;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperParentCombinations;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityInsertionDate;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionablePurge;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityFactory;
@@ -17,11 +18,16 @@ import com.ccp.json.validations.fields.annotations.CcpJsonCopyFieldValidationsFr
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
 import com.jn.entities.decorators.engine.JnGrouperChildCurrentCounterEntityBeforeWrite;
+import com.jn.entities.decorators.engine.JnInsertionDateEntity;
+import com.jn.entities.fields.counters.JnInsertionDayCounterKeys;
+import com.jn.entities.fields.counters.JnInsertionYearMonthCounterKeys;
 import com.jn.entities.decorators.engine.JnVersionableEntity;
 import com.jn.entities.decorators.engine.JnVersionablePurgeEntity;
 import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDefault;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.js.business.login.JsBusinessPublishLoginAnswersSaved;
+import com.js.json.transformers.JsInsertionDayCounterCombinations;
+import com.js.json.transformers.JsInsertionMonthCounterCombinations;
 import com.js.json.transformers.JsLoginChannelCounterCombinations;
 import com.js.json.transformers.JsLoginChannelCounterKeys;
 import com.js.json.transformers.JsLoginGoalCounterCombinations;
@@ -39,9 +45,19 @@ import com.js.json.transformers.JsLoginGoalCounterKeys;
  * ({@link JsBusinessPublishLoginAnswersSaved}): vis turns the goal {@code recruiting} into a recruiter</li>
  * <li>counted in {@code jn_grouper} by goal ({@link JsEntityVirtualLoginGoalCounter}) and by channel
  * ({@link JsEntityVirtualLoginChannelCounter}): each group holds {@code {"<value>": n}}, the current state</li>
+ * <li>keeps the moment of its insertion in {@code insertionDate}, counted in {@code jn_grouper} by day
+ * ({@link JsEntityVirtualInsertionDayCounter}, {@code {"yyyyMMdd": n}}) and by month
+ * ({@link JsEntityVirtualInsertionMonthCounter}, {@code {"yyyyMM": n}})</li>
  * </ul>
  */
 @CcpAfterSaveFromMainEntity(execute = {JsBusinessPublishLoginAnswersSaved.class}, operationHandlers = {})
+// the moment of the insertion of the answers, kept in insertionDate across the saves
+@CcpEntityInsertionDate(JnInsertionDateEntity.class)
+// the answers inserted in each day (yyyyMMdd) and in each month (yyyyMM) that still exist
+@CcpEntityGrouperChildCounter(value = {JsEntityVirtualInsertionDayCounter.class}, counterKeyClass = JnInsertionDayCounterKeys.class, beforeDecoratorClass = JnGrouperChildCurrentCounterEntityBeforeWrite.class)
+@CcpEntityGrouperParentCombinations(parent = JsEntityVirtualInsertionDayCounter.class, value = JsInsertionDayCounterCombinations.class)
+@CcpEntityGrouperChildCounter(value = {JsEntityVirtualInsertionMonthCounter.class}, counterKeyClass = JnInsertionYearMonthCounterKeys.class, beforeDecoratorClass = JnGrouperChildCurrentCounterEntityBeforeWrite.class)
+@CcpEntityGrouperParentCombinations(parent = JsEntityVirtualInsertionMonthCounter.class, value = JsInsertionMonthCounterCombinations.class)
 // one group counts the answers by goal and another by channel: a save that changes the value moves the count, the
 // delete subtracts it
 @CcpEntityGrouperChildCounter(value = {JsEntityVirtualLoginGoalCounter.class}, counterKeyClass = JsLoginGoalCounterKeys.class, beforeDecoratorClass = JnGrouperChildCurrentCounterEntityBeforeWrite.class)
@@ -78,7 +94,13 @@ public class JsEntityLoginAnswers implements CcpEntityConfigurator {
 		/** The {@code goal} field: required, text. */
 		@CcpJsonFieldValidatorRequired
 		@CcpJsonFieldTypeString(allowedValuesEnum = VisGoalTypes.class)
-		goal
+		goal,
+		/**
+		 * The {@code insertionDate} field: the moment the answers were inserted, kept by {@code @CcpEntityInsertionDate}
+		 * (the value of the input is ignored), validated as in {@code JnJsonCommonsFields}.
+		 */
+		@CcpJsonCopyFieldValidationsFrom(JnJsonCommonsFields.class)
+		insertionDate,
 		;
 	}
 	
