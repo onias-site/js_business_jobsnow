@@ -20,7 +20,7 @@ import com.ccp.especifications.http.CcpHttpMethods;
 import com.ccp.especifications.http.CcpHttpRequestLog;
 import com.ccp.flow.CcpErrorFlowDisturb;
 import com.ccp.json.validations.global.engine.CcpJsonValidationError;
-import com.jn.business.email.suppression.JnBusinessLoadEmailSuppressions;
+import com.jn.business.email.suppression.JnBusinessLoadEmailSuppressionsOrSaveAWarning;
 import com.jn.entities.JnEntityEmailSuppressed;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.jn.utils.JnDeleteKeysFromCache;
@@ -33,8 +33,9 @@ import com.js.services.JsServiceLogin;
  * <ol>
  * <li>reads, in the request log of the production service of login, the {@code POST /login/{email}/token/language/{language}}
  * ({@code CreateLoginToken}) answered with 200 in the last 24 hours, keeping the last user agent and IP of each e-mail;</li>
- * <li>refreshes the suppression lists of the e-mail provider ({@code JnBusinessLoadEmailSuppressions}) and leaves out the
- * e-mails present in {@code jn_email_suppressed};</li>
+ * <li>refreshes the suppression lists of the e-mail provider ({@code JnBusinessLoadEmailSuppressionsOrSaveAWarning}: the
+ * only load of the platform, which the daily process relies on; a failure of the provider becomes a warning in
+ * {@code jn_jobsnow_warning} and the resending goes on) and leaves out the e-mails present in {@code jn_email_suppressed};</li>
  * <li>leaves out the e-mails present in {@code js_login_password};</li>
  * <li>runs {@code JsServiceLogin.ResendLoginToken} (the service of {@code POST /login/{email}/token/request/resending})
  * for each e-mail left. A refusal of the service (no token, already requested, already resent) only counts.</li>
@@ -114,9 +115,8 @@ public class JsBusinessResendLoginTokenToUsersWithoutPassword implements CcpBusi
 				.put(JsonFieldNames.emailsWithToken, emailsWithToken);
 		this.logStep(JsonFieldNames.readRequestLog, readCounters);
 
-		CcpJsonRepresentation loadResult = JnBusinessLoadEmailSuppressions.INSTANCE.execute(CcpOtherConstants.EMPTY_JSON);
-		CcpJsonRepresentation loadCounters = loadResult.getJsonPiece(JnBusinessLoadEmailSuppressions.Fields.savedSuppressions,
-				JnBusinessLoadEmailSuppressions.Fields.ignoredSuppressions);
+		// a failure of the provider becomes a warning and must not cost the resending of this hour
+		CcpJsonRepresentation loadCounters = JnBusinessLoadEmailSuppressionsOrSaveAWarning.INSTANCE.execute(CcpOtherConstants.EMPTY_JSON);
 		this.logStep(JsonFieldNames.loadEmailSuppressions, loadCounters);
 
 		List<CcpJsonRepresentation> requests = new ArrayList<>(requestsByEmail.values());
