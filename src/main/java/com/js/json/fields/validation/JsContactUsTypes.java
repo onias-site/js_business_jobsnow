@@ -21,12 +21,12 @@ public enum JsContactUsTypes implements JnSystemMessage {
 	makeCompliment(6, JnTicketQuotaGroups.sharedTickets),
 	/** Making a criticism: priority 3, daily quota of its own. */
 	makeCriticism(3, JnTicketQuotaGroups.makeCriticism),
-	/** Making a suggestion: priority 5, shared daily quota. */
-	makeSuggestion(5, JnTicketQuotaGroups.sharedTickets),
+	/** Making a suggestion: priority 3 (since 2026-11-13; it was 5), shared daily quota. */
+	makeSuggestion(3, JnTicketQuotaGroups.sharedTickets),
 	/** Making a comment: priority 6, shared daily quota. */
 	makeComment(6, JnTicketQuotaGroups.sharedTickets),
-	/** Clarifying doubts: priority 2, daily quota of its own. */
-	clarifyDoubts(2, JnTicketQuotaGroups.clarifyDoubts),
+	/** Clarifying doubts: priority 3 (since 2026-11-13; it was 2), daily quota of its own. */
+	clarifyDoubts(3, JnTicketQuotaGroups.clarifyDoubts),
 	;
 
 	/** The priority of the ticket of the support operator: the lower, the sooner it is shown. */
