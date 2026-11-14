@@ -5,6 +5,8 @@ import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityCache;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsTransformer;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityFieldsValidator;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperChildCounter;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityGrouperParentCombinations;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionable;
 import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityVersionablePurge;
 import com.ccp.especifications.db.utils.entity.decorators.engine.CcpEntityFactory;
@@ -14,11 +16,16 @@ import com.ccp.especifications.db.utils.entity.fields.annotations.CcpEntityField
 import com.ccp.json.validations.fields.annotations.CcpJsonCopyFieldValidationsFrom;
 import com.ccp.json.validations.fields.annotations.CcpJsonFieldValidatorRequired;
 import com.ccp.json.validations.fields.annotations.type.CcpJsonFieldTypeString;
+import com.jn.entities.decorators.engine.JnGrouperChildCurrentCounterEntityBeforeWrite;
 import com.jn.entities.decorators.engine.JnVersionableEntity;
 import com.jn.entities.decorators.engine.JnVersionablePurgeEntity;
 import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDefault;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.js.business.login.JsBusinessPublishLoginAnswersSaved;
+import com.js.json.transformers.JsLoginChannelCounterCombinations;
+import com.js.json.transformers.JsLoginChannelCounterKeys;
+import com.js.json.transformers.JsLoginGoalCounterCombinations;
+import com.js.json.transformers.JsLoginGoalCounterKeys;
 
 /**
  * Answers of the sign-up questionnaire: how the user arrived ({@code channel}) and the goal on the platform ({@code goal}).
@@ -30,9 +37,17 @@ import com.js.business.login.JsBusinessPublishLoginAnswersSaved;
  * <li>versionable: every write keeps the previous state in {@code jn_versionable}</li>
  * <li>after each save, the answers are announced to whoever listens in {@code jn_write_event_subscribers}
  * ({@link JsBusinessPublishLoginAnswersSaved}): vis turns the goal {@code recruiting} into a recruiter</li>
+ * <li>counted in {@code jn_grouper} by goal ({@link JsEntityVirtualLoginGoalCounter}) and by channel
+ * ({@link JsEntityVirtualLoginChannelCounter}): each group holds {@code {"<value>": n}}, the current state</li>
  * </ul>
  */
 @CcpAfterSaveFromMainEntity(execute = {JsBusinessPublishLoginAnswersSaved.class}, operationHandlers = {})
+// one group counts the answers by goal and another by channel: a save that changes the value moves the count, the
+// delete subtracts it
+@CcpEntityGrouperChildCounter(value = {JsEntityVirtualLoginGoalCounter.class}, counterKeyClass = JsLoginGoalCounterKeys.class, beforeDecoratorClass = JnGrouperChildCurrentCounterEntityBeforeWrite.class)
+@CcpEntityGrouperParentCombinations(parent = JsEntityVirtualLoginGoalCounter.class, value = JsLoginGoalCounterCombinations.class)
+@CcpEntityGrouperChildCounter(value = {JsEntityVirtualLoginChannelCounter.class}, counterKeyClass = JsLoginChannelCounterKeys.class, beforeDecoratorClass = JnGrouperChildCurrentCounterEntityBeforeWrite.class)
+@CcpEntityGrouperParentCombinations(parent = JsEntityVirtualLoginChannelCounter.class, value = JsLoginChannelCounterCombinations.class)
 @CcpEntityCache(3600)
 @CcpEntityVersionable(JnVersionableEntity.class)
 @CcpEntityVersionablePurge(JnVersionablePurgeEntity.class)
