@@ -9,8 +9,8 @@ import com.jn.services.JnService;
 import com.js.business.telegram.JsBusinessValidateTelegramWebhookSecret;
 
 /**
- * Service of the webhook of Telegram: the way the bots receive their messages in production. Locally they are read by
- * polling ({@code JbInstantMessengerReaderStarter}), since Telegram does not reach a developer machine. Each item takes
+ * Service of the webhook of Telegram: the only way the bots receive their messages (the reading by polling, used locally,
+ * was removed on 2026-11-15; Telegram does not reach a developer machine). Each item takes
  * its input rules from the class of the same name in this package (see {@code JnService}).
  */
 public enum JsServiceTelegramWebhook implements JnService {

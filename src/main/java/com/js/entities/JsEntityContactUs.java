@@ -1,5 +1,7 @@
 package com.js.entities;
 
+import com.jn.entities.decorators.engine.JnAsyncWriterEntity;
+import com.ccp.especifications.db.utils.entity.decorators.annotations.CcpEntityAsyncWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +86,7 @@ import com.js.messages.JsNotifyUserAboutAnsweredContactUs;
 @CcpEntityGrouperChildCounter(value = {JsEntityVirtualContactUsTypeCounter.class}, counterKeyClass = JsContactUsTypeCounterKeys.class, beforeDecoratorClass = JnGrouperChildCounterEntityBeforeWrite.class)
 @CcpEntityGrouperParentCombinations(parent = JsEntityVirtualContactUsTypeCounter.class, value = JsContactUsTypeCounterCombinations.class)
 @CcpEntityCache(3600)
+@CcpEntityAsyncWriter(JnAsyncWriterEntity.class)
 @CcpEntityFieldsTransformer(JnJsonTransformersFieldsEntityDefault.class)
 @CcpEntityFieldsValidator(JsEntityContactUs.Fields.class)
 @CcpAfterSaveFromMainEntitySendAnEmailMessageAndInstantMessageAndIfFailsThrowAnError(JsNotifySupportAndUserAboutContactUs.class)
