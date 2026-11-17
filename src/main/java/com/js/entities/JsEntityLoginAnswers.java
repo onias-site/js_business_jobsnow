@@ -30,6 +30,8 @@ import com.js.json.transformers.JsInsertionDayCounterCombinations;
 import com.js.json.transformers.JsInsertionMonthCounterCombinations;
 import com.js.json.transformers.JsLoginChannelCounterCombinations;
 import com.js.json.transformers.JsLoginChannelCounterKeys;
+import com.js.json.transformers.JsLoginChannelGoalCounterCombinations;
+import com.js.json.transformers.JsLoginChannelGoalCounterKeys;
 import com.js.json.transformers.JsLoginGoalCounterCombinations;
 import com.js.json.transformers.JsLoginGoalCounterKeys;
 
@@ -64,6 +66,9 @@ import com.js.json.transformers.JsLoginGoalCounterKeys;
 @CcpEntityGrouperParentCombinations(parent = JsEntityVirtualLoginGoalCounter.class, value = JsLoginGoalCounterCombinations.class)
 @CcpEntityGrouperChildCounter(value = {JsEntityVirtualLoginChannelCounter.class}, counterKeyClass = JsLoginChannelCounterKeys.class, beforeDecoratorClass = JnGrouperChildCurrentCounterEntityBeforeWrite.class)
 @CcpEntityGrouperParentCombinations(parent = JsEntityVirtualLoginChannelCounter.class, value = JsLoginChannelCounterCombinations.class)
+// 2026-11-17: the channel crossed with the goal, the chart "Origem x objetivo" of the screen Curiosities
+@CcpEntityGrouperChildCounter(value = {JsEntityVirtualLoginChannelGoalCounter.class}, counterKeyClass = JsLoginChannelGoalCounterKeys.class, beforeDecoratorClass = JnGrouperChildCurrentCounterEntityBeforeWrite.class)
+@CcpEntityGrouperParentCombinations(parent = JsEntityVirtualLoginChannelGoalCounter.class, value = JsLoginChannelGoalCounterCombinations.class)
 @CcpEntityCache(3600)
 @CcpEntityVersionable(JnVersionableEntity.class)
 @CcpEntityVersionablePurge(JnVersionablePurgeEntity.class)
