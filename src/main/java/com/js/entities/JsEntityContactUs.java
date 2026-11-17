@@ -40,14 +40,11 @@ import com.jn.entities.JnEntityWriteEventSubscribers;
 import com.jn.entities.decorators.engine.JnGrouperChildAsJsonEntityAfterWrite;
 import com.jn.entities.decorators.engine.JnGrouperChildAsJsonOnBothSidesEntityBeforeWrite;
 import com.jn.entities.decorators.engine.JnGrouperChildCounterEntityBeforeWrite;
-import com.jn.entities.decorators.engine.JnGrouperChildCurrentCounterEntityBeforeWrite;
 import com.jn.entities.JnEntityGrouperChartsProviders;
 import com.jn.json.fields.validation.JnGrouperChartsScreens;
 import com.js.business.grouper.JsBusinessCuriositiesCharts;
 import com.js.json.transformers.JsContactUsTypeCounterCombinations;
 import com.js.json.transformers.JsContactUsTypeCounterKeys;
-import com.js.json.transformers.JsContactUsPendingTypeCounterCombinations;
-import com.js.json.transformers.JsContactUsPendingTypeCounterKeys;
 import com.jn.entities.fields.transformers.JnJsonTransformersFieldsEntityDefault;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
 import com.jn.json.fields.validation.JnJsonInstantMessengerFields;
@@ -88,9 +85,6 @@ import com.js.messages.JsNotifyUserAboutAnsweredContactUs;
 // the tickets ever opened, by type (a history: the answer does not subtract): the chart of the screen Curiosities
 @CcpEntityGrouperChildCounter(value = {JsEntityVirtualContactUsTypeCounter.class}, counterKeyClass = JsContactUsTypeCounterKeys.class, beforeDecoratorClass = JnGrouperChildCounterEntityBeforeWrite.class)
 @CcpEntityGrouperParentCombinations(parent = JsEntityVirtualContactUsTypeCounter.class, value = JsContactUsTypeCounterCombinations.class)
-// 2026-11-17: the tickets still waiting for the support, by type (current state: the answer subtracts)
-@CcpEntityGrouperChildCounter(value = {JsEntityVirtualContactUsPendingTypeCounter.class}, counterKeyClass = JsContactUsPendingTypeCounterKeys.class, beforeDecoratorClass = JnGrouperChildCurrentCounterEntityBeforeWrite.class)
-@CcpEntityGrouperParentCombinations(parent = JsEntityVirtualContactUsPendingTypeCounter.class, value = JsContactUsPendingTypeCounterCombinations.class)
 @CcpEntityCache(3600)
 @CcpEntityAsyncWriter(JnAsyncWriterEntity.class)
 @CcpEntityFieldsTransformer(JnJsonTransformersFieldsEntityDefault.class)

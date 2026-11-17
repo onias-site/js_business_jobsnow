@@ -9,7 +9,6 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.jn.utils.JnGrouperChart;
 import com.js.entities.JsEntityContactUs;
 import com.js.entities.JsEntityLoginAnswers;
-import com.js.entities.JsEntityVirtualContactUsPendingTypeCounter;
 import com.js.entities.JsEntityVirtualContactUsTypeCounter;
 import com.js.entities.JsEntityVirtualInsertionDayCounter;
 import com.js.entities.JsEntityVirtualInsertionMonthCounter;
@@ -38,8 +37,6 @@ public class JsBusinessCuriositiesCharts implements CcpBusiness {
 		contactUsTypes,
 		/** The channel crossed with the goal of the users ({@code {"<channel>|<goal>": n}}), since 2026-11-17. */
 		channelGoals,
-		/** The tickets still waiting for the support, by type ({@code {type: n}}), since 2026-11-17. */
-		pendingContactUsTypes,
 	}
 
 	/** The single instance. */
@@ -69,9 +66,7 @@ public class JsBusinessCuriositiesCharts implements CcpBusiness {
 		CcpJsonRepresentation contactUsTypes = JnGrouperChart.counters(Fields.contactUsTypes, JsEntityVirtualContactUsTypeCounter.ENTITY, JsEntityContactUs.ENTITY, typeCombination);
 		CcpJsonRepresentation channelGoalCombination = JsEntityVirtualLoginChannelGoalCounter.getCombination();
 		CcpJsonRepresentation channelGoals = JnGrouperChart.counters(Fields.channelGoals, JsEntityVirtualLoginChannelGoalCounter.ENTITY, JsEntityLoginAnswers.ENTITY, channelGoalCombination);
-		CcpJsonRepresentation pendingTypeCombination = JsEntityVirtualContactUsPendingTypeCounter.getCombination();
-		CcpJsonRepresentation pendingContactUsTypes = JnGrouperChart.counters(Fields.pendingContactUsTypes, JsEntityVirtualContactUsPendingTypeCounter.ENTITY, JsEntityContactUs.ENTITY, pendingTypeCombination);
-		List<CcpJsonRepresentation> charts = Arrays.asList(byDay, byMonth, goals, channels, contactUsTypes, channelGoals, pendingContactUsTypes);
+		List<CcpJsonRepresentation> charts = Arrays.asList(byDay, byMonth, goals, channels, contactUsTypes, channelGoals);
 		CcpJsonRepresentation output = JnGrouperChart.output(charts);
 		return output;
 	}
