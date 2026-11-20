@@ -6,6 +6,7 @@ import com.ccp.process.CcpProcessStatusDefault;
 import com.ccp.especifications.db.utils.entity.CcpEntity;
 import com.jn.business.grouper.JnBusinessGetGroup;
 import com.jn.business.grouper.JnBusinessGetGroupOnBothSides;
+import com.jn.business.grouper.JnBusinessGetVersionableHistory;
 import com.jn.entities.JnEntityGrouper;
 import com.jn.services.JnService;
 import com.js.business.grouper.JsBusinessOnlyTheGroupsOfTheSessionOwner;
@@ -77,6 +78,30 @@ public enum JsServiceGrouper implements JnService {
 		 */
 		public Class<?> getJsonValidationClass() {
 			return JnBusinessGetGroupOnBothSides.Fields.class;
+		}
+	},
+	/**
+	 * The history of a record of a versionable entity by the name of the entity and the document id of the record, kept
+	 * in {@code jn_grouper} since 2026-11-20; a record with no history, or that is not of the logged-in user, answers 404.
+	 */
+	GetVersionableHistory {
+		/**
+		 * Reads the history with {@code JnBusinessGetVersionableHistory}.
+		 * @param json the session values, the name of the entity and the id of the record
+		 * @return the history
+		 * @throws CcpErrorFlowDisturb with {@code NOT_FOUND} when the record has no history or is not of the logged-in user
+		 */
+		public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
+			CcpJsonRepresentation history = JnBusinessGetVersionableHistory.INSTANCE.execute(json);
+			return history;
+		}
+
+		/**
+		 * Validates the input with the fields of the read of the history.
+		 * @return the validation class
+		 */
+		public Class<?> getJsonValidationClass() {
+			return JnBusinessGetVersionableHistory.Fields.class;
 		}
 	},
 	;

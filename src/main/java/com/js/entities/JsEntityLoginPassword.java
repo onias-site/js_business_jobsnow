@@ -30,7 +30,7 @@ import com.ccp.especifications.db.utils.entity.decorators.annotations.operations
  * <li>index {@code js_login_password}</li>
  * <li>twin entity {@code js_login_password_locked}</li>
  * <li>records cached for 3600 seconds</li>
- * <li>versionable: every write keeps the previous state in {@code jn_versionable}</li>
+ * <li>versionable: every write keeps the previous state in its history ({@code JnVersionableHistory}, in {@code jn_grouper})</li>
  * <li>after each insertion, the record of {@code js_login_token_resent_without_password} is deleted
  * ({@link JsBusinessDeleteTokenResentWithoutPassword})</li>
  * </ul>

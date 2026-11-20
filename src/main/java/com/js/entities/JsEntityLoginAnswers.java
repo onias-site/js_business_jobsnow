@@ -42,7 +42,7 @@ import com.js.json.transformers.JsLoginGoalCounterKeys;
  * <ul>
  * <li>index {@code js_login_answers}</li>
  * <li>records cached for 3600 seconds</li>
- * <li>versionable: every write keeps the previous state in {@code jn_versionable}</li>
+ * <li>versionable: every write keeps the previous state in its history ({@code JnVersionableHistory}, in {@code jn_grouper})</li>
  * <li>after each save, the answers are announced to whoever listens in {@code jn_write_event_subscribers}
  * ({@link JsBusinessPublishLoginAnswersSaved}): vis turns the goal {@code recruiting} into a recruiter</li>
  * <li>counted in {@code jn_grouper} by goal ({@link JsEntityVirtualLoginGoalCounter}) and by channel
