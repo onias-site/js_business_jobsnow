@@ -14,6 +14,7 @@ import com.js.entities.JsEntityLoginSessionConflict;
 import com.js.entities.JsEntityLoginSessionTokenAttempts;
 import com.js.entities.JsEntityLoginSessionValidation;
 import com.jn.json.fields.validation.JnJsonCommonsFields;
+import com.jn.mensageria.JnFunctionMensageriaSender;
 import com.js.status.login.JsProcessStatusExecuteLogin;
 import com.jn.utils.JnDeleteKeysFromCache;
 import com.jn.utils.JnSystemProperties;
@@ -21,7 +22,8 @@ import com.jn.utils.JnSystemProperties;
 /**
  * Validates the session: the {@code sessionToken} must be present (401), match an open session (401) and be the current
  * session of the e-mail (401, see {@code JsBusinessCheckCurrentSession}). Every token of no session at all counts one
- * attempt; the third one deletes (locks) the password, and a valid one resets the counter. A session replaced by a
+ * attempt; the third one deletes (locks) the password through the queue of {@code JsEntityLoginPassword} (since
+ * 2026-11-21, so that the API of vis, without bulk, can lock it), and a valid one resets the counter. A session replaced by a
  * newer one, one that expired ({@code JsBusinessRefuseExpiredSession}), or the current one sent by another user agent or
  * IP ({@code JsBusinessRefuseSessionOfAnotherClient}), does not count an attempt.
  *
@@ -64,7 +66,9 @@ public class JsBusinessValidateLogin implements CcpBusiness {
 
 		CcpJsonRepresentation duplicateValueFromField = json.duplicateValueFromField(CcpJsonCommonsFields.sessionToken, JsEntityLoginSessionValidation.Fields.token);
 
-		CcpBusiness lockPassword = CcpEntityOperationType.delete.getOperationCallback(JsEntityLoginPassword.ENTITY);
+		// the session is also validated by the API of vis, which has no bulk (since 2026-11-15): the delete moves the password
+		// to the twin by bulk, so it goes to the queue of the entity and runs in the consumer (since 2026-11-21)
+		CcpBusiness lockPassword = new JnFunctionMensageriaSender(JsEntityLoginPassword.ENTITY, CcpEntityOperationType.delete);
 
 		// the configured limit, the same one of the wrong passwords and tokens (until 2026-10-06 it was a fixed 3)
 		int maxAttempts = JnSystemProperties.INSTANCE.maxAttempts();
