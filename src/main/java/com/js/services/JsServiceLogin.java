@@ -161,6 +161,8 @@ public enum JsServiceLogin implements JnService {
 
 				new CcpGetEntityId(json)
 				.toBeginProcedureAnd()
+					// an address the e-mail provider suppresses never receives the login token (410)
+					.ifThisIdIsPresentInEntity(JnEntityEmailSuppressed.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.suppressedEmail).and()
 					.ifThisIdIsPresentInEntity(JsEntityLoginToken.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusExistsLoginEmail.lockedToken).and()
 					.ifThisIdIsNotPresentInEntity(JnEntityLoginEmail.ENTITY).returnStatus(JsProcessStatusExistsLoginEmail.missingEmail).and()
 					.ifThisIdIsPresentInEntity(JsEntityLoginPassword.ENTITY.getTwinEntity()).returnStatus(JsProcessStatusExistsLoginEmail.lockedPassword).and()

@@ -4,6 +4,11 @@ import com.ccp.process.CcpProcessStatus;
 
 /** Statuses of the check of the login e-mail: whether it exists and how complete the registration is. */
 public enum JsProcessStatusExistsLoginEmail implements CcpProcessStatus{
+	/**
+	 * Status 410: the e-mail provider suppresses the address ({@code JnEntityEmailSuppressed}: permanent bounce, invalid
+	 * address or spam report), so no login token would ever reach it.
+	 */
+	suppressedEmail(410),
 	/** Status 400: the e-mail is invalid. */
 	invalidEmail(400),
 	/** Status 403: the login token is locked. */
